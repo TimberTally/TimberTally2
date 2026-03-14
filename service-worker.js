@@ -2,7 +2,7 @@
 
 // V IMPORTANT: Increment this version number with each update!
 // Make sure this matches the version you intend to deploy.
-const CACHE_NAME = 'timber-tally-cache-v2.1'; // <--- CHANGE THIS with each new deployment!
+const CACHE_NAME = 'timber-tally-cache-v2.2'; // <--- CHANGE THIS with each new deployment!
 
 // List of files that make up the "app shell" - essential for offline loading.
 const urlsToCache = [
