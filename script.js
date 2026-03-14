@@ -125,8 +125,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const settingsFeedback    = document.getElementById('settingsFeedback');
     const manualUpdateCheckBtn = document.getElementById('manualUpdateCheckBtn');
     const updateCheckStatus   = document.getElementById('updateCheckStatus');
-    const showPrivacyPolicyBtn = document.getElementById('showPrivacyPolicyBtn');
-    const showReadmeBtn       = document.getElementById('showReadmeBtn');
+    const showInfoBtn         = document.getElementById('showInfoBtn');
     const showTreeKeyBtn      = document.getElementById('showTreeKeyBtn');
     const newSpeciesInput     = document.getElementById('newSpeciesInput');
     const addSpeciesBtn       = document.getElementById('addSpeciesBtn');
@@ -159,6 +158,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const stockingResults     = document.getElementById('stockingResults');
     const stockingStatsTable  = document.getElementById('stockingStatsTable');
     const stockingNoData      = document.getElementById('stockingNoData');
+    const zipExportSelect     = document.getElementById('zipExportSelect');
 
     // --- Storage Keys ---
     const STORAGE_KEY          = 'timberTallyTempSession';
@@ -184,6 +184,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentLogRule      = 'Doyle';
     let currentFormClass    = 78;
     let currentGenerateGraphs = 'No';
+    let currentZipExport    = 'No';
     let currentDarkMode     = 'off';
     let deferredInstallPrompt = null;   // holds the beforeinstallprompt event
     let currentSpeciesList  = [];
@@ -307,7 +308,7 @@ document.addEventListener('DOMContentLoaded', () => {
             localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify({
                 baf: currentBaf, logRule: currentLogRule,
                 formClass: currentFormClass, generateGraphs: currentGenerateGraphs,
-                darkMode: currentDarkMode
+                zipExport: currentZipExport, darkMode: currentDarkMode
             }));
         } catch (e) { console.error('[Settings] Save error:', e); }
     }
@@ -323,11 +324,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     currentFormClass = parseInt(s.formClass, 10) || 78;
                     if (!VALID_DOYLE_FC.includes(currentFormClass)) currentFormClass = 78;
                     currentGenerateGraphs = s.generateGraphs === 'Yes' ? 'Yes' : 'No';
+                    currentZipExport = s.zipExport === 'Yes' ? 'Yes' : 'No';
                     currentDarkMode = ['off','on','system'].includes(s.darkMode) ? s.darkMode : 'off';
                     if (bafSelect) bafSelect.value = String(currentBaf);
                     if (logRuleSelect) logRuleSelect.value = currentLogRule;
                     if (formClassSelect) formClassSelect.value = String(currentFormClass);
                     if (generateGraphsSelect) generateGraphsSelect.value = currentGenerateGraphs;
+                    if (zipExportSelect) zipExportSelect.value = currentZipExport;
                     if (darkModeSelect) darkModeSelect.value = currentDarkMode;
                 } else applyDefaultSettings();
             } else applyDefaultSettings();
@@ -340,11 +343,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function applyDefaultSettings() {
         currentBaf = 10; currentLogRule = 'Doyle'; currentFormClass = 78;
-        currentGenerateGraphs = 'No'; currentDarkMode = 'off';
+        currentGenerateGraphs = 'No'; currentZipExport = 'No'; currentDarkMode = 'off';
         if (bafSelect) bafSelect.value = '10';
         if (logRuleSelect) logRuleSelect.value = 'Doyle';
         if (formClassSelect) formClassSelect.value = '78';
         if (generateGraphsSelect) generateGraphsSelect.value = 'No';
+        if (zipExportSelect) zipExportSelect.value = 'No';
         if (darkModeSelect) darkModeSelect.value = 'off';
         saveSettings();
     }
@@ -357,9 +361,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function updateSaveBtnLabel() {
         if (saveCsvBtn) {
-            saveCsvBtn.textContent = currentGenerateGraphs === 'Yes'
-                ? '\uD83D\uDCBE Save CSV & Graphs'
-                : '\uD83D\uDCBE Save CSV';
+            if (currentZipExport === 'Yes') {
+                saveCsvBtn.textContent = '\uD83D\uDCBE Save ZIP';
+            } else if (currentGenerateGraphs === 'Yes') {
+                saveCsvBtn.textContent = '\uD83D\uDCBE Save CSV & Graphs';
+            } else {
+                saveCsvBtn.textContent = '\uD83D\uDCBE Save CSV';
+            }
         }
     }
 
@@ -547,15 +555,23 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!neededPlotsValue) return;
         const letter = areaLetters[currentAreaIndex];
         const areaData = collectedData.filter(e => e.areaLetter === letter);
-        const plotCount = new Set(areaData.map(e => e.plotNumber)).size;
+        const plotCount = new Set(areaData.map(e => e.plotNumber).filter(p => p != null)).size;
         const stats = calculatePlotStats(areaData, currentBaf, currentLogRule, currentFormClass);
+
         if (stats && plotCount >= 2 && stats.cvV > 0) {
             const cv = stats.cvV, t = 2;
-            const n10 = Math.ceil(Math.pow(t*cv/10, 2));
-            const n20 = Math.ceil(Math.pow(t*cv/20, 2));
-            neededPlotsValue.textContent = `10%: ${n10} / 20%: ${n20}`;
+            // Freese formula: n = ceil((t*CV/E)^2). Show 0/✓ if already met.
+            const needed = (E) => {
+                const n = Math.ceil(Math.pow(t * cv / E, 2));
+                return plotCount >= n ? 0 : n;
+            };
+            const n10 = needed(10), n20 = needed(20), n30 = needed(30);
+            const fmt = (n, label) => n === 0
+                ? `<span style="color:#28a745;font-weight:700;">${label}:✓</span>`
+                : `${label}:${n}`;
+            neededPlotsValue.innerHTML = `${fmt(n10,'10%')} ${fmt(n20,'20%')} ${fmt(n30,'30%')}`;
         } else if (areaData.length > 0 && plotCount < 2) {
-            neededPlotsValue.textContent = 'N/A (<2 plots)';
+            neededPlotsValue.textContent = 'Need ≥2 plots';
         } else {
             neededPlotsValue.textContent = '---';
         }
@@ -770,7 +786,79 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!collectedData.length) { showFeedback("No data to save.", true); return; }
         const selBaf = currentBaf, selRule = currentLogRule, selFc = currentFormClass;
         const graphsEnabled = currentGenerateGraphs === 'Yes';
-        showFeedback("Generating CSV(s)...", false, 10000);
+        const zipMode       = currentZipExport === 'Yes';
+        showFeedback(zipMode ? "Building ZIP..." : "Generating CSV(s)...", false, 10000);
+
+        let zip = null;
+        if (zipMode) {
+            if (typeof JSZip === 'undefined') {
+                showFeedback("JSZip not loaded. Check internet connection.", true, 5000);
+                return;
+            }
+            zip = new JSZip();
+        }
+
+        function triggerDownload(url, filename) {
+            const a = document.createElement('a');
+            a.href = url; a.download = filename;
+            a.style.visibility = 'hidden';
+            document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        }
+
+        async function handleTextFile(content, filename) {
+            if (zipMode) {
+                zip.file(filename, content);
+            } else {
+                const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                triggerDownload(url, filename);
+                URL.revokeObjectURL(url);
+                await new Promise(r => setTimeout(r, 250));
+            }
+        }
+
+        async function handleTxtFile(content, filename) {
+            if (zipMode) {
+                zip.file(filename, content);
+            } else {
+                const blob = new Blob([content], { type: 'text/plain;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                triggerDownload(url, filename);
+                URL.revokeObjectURL(url);
+            }
+        }
+
+        async function handleChartPng(genFn, reportDataArg, filename) {
+            const c = document.createElement('canvas'); c.width=800; c.height=450;
+            const inst = genFn(reportDataArg, c);
+            if (!inst) return;
+            await new Promise(r => setTimeout(r, 250));
+            try {
+                const dataUrl = c.toDataURL('image/png');
+                if (zipMode) {
+                    zip.file(filename, dataUrl.split(',')[1], { base64: true });
+                } else {
+                    triggerDownload(dataUrl, filename);
+                    await new Promise(r => setTimeout(r, 250));
+                }
+            } catch(e) {}
+            try { inst.destroy(); } catch(e) {}
+        }
+
+        async function handleCanvasPng(canvas, filename) {
+            if (!canvas) return;
+            await new Promise(r => setTimeout(r, 100));
+            try {
+                const dataUrl = canvas.toDataURL('image/png');
+                if (zipMode) {
+                    zip.file(filename, dataUrl.split(',')[1], { base64: true });
+                } else {
+                    triggerDownload(dataUrl, filename);
+                    await new Promise(r => setTimeout(r, 250));
+                }
+            } catch(e) { console.error('Canvas PNG error:', e); }
+        }
+
         try {
             const grouped = collectedData.reduce((acc, e) => {
                 const area = e.areaLetter || 'Unknown';
@@ -790,44 +878,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 try { tallyData = generateTallyData(areaData); } catch(e) {}
                 try { plotStats = calculatePlotStats(areaData, selBaf, selRule, selFc); } catch(e) {}
 
+                const nameBase = `${projBase}_Area${areaLetter}_${ts}`;
+
                 if (graphsEnabled && reportData?.summary?.numberOfPlots > 0) {
-                    const nameBase = `${projBase}_Area${areaLetter}_${ts}`;
+                    await handleChartPng(generateBaChartExport,          reportData, `${nameBase}_BA_Dist.png`);
+                    await handleChartPng(generateTpaChartExport,         reportData, `${nameBase}_TPA_Dist.png`);
+                    await handleChartPng(generateVolSpeciesChartExport,  reportData, `${nameBase}_Vol_Species.png`);
+                    await handleChartPng(generateVolSawtimberChartExport,reportData, `${nameBase}_Vol_Sawtimber.png`);
 
-                    // Helper: render a Chart.js chart to PNG and download
-                    const makeAndDownload = async (genFn, suffix) => {
-                        const c = document.createElement('canvas'); c.width=800; c.height=450;
-                        const inst = genFn(reportData, c);
-                        if (!inst) return;
-                        await new Promise(r => setTimeout(r, 250));
-                        try {
-                            const url = c.toDataURL('image/png');
-                            const a = document.createElement('a'); a.href=url; a.download=`${nameBase}_${suffix}.png`;
-                            a.style.visibility='hidden'; document.body.appendChild(a); a.click(); document.body.removeChild(a);
-                        } catch(e) {}
-                        try { inst.destroy(); } catch(e) {}
-                    };
-
-                    // Helper: download a plain canvas (no Chart.js instance)
-                    const downloadCanvas = async (canvas, suffix) => {
-                        if (!canvas) return;
-                        await new Promise(r => setTimeout(r, 100));
-                        try {
-                            const url = canvas.toDataURL('image/png');
-                            const a = document.createElement('a'); a.href=url; a.download=`${nameBase}_${suffix}.png`;
-                            a.style.visibility='hidden'; document.body.appendChild(a); a.click(); document.body.removeChild(a);
-                        } catch(e) { console.error('Canvas download error:', e); }
-                    };
-
-                    await makeAndDownload(generateBaChartExport, 'BA_Dist');
-                    await new Promise(r => setTimeout(r, 250));
-                    await makeAndDownload(generateTpaChartExport, 'TPA_Dist');
-                    await new Promise(r => setTimeout(r, 250));
-                    await makeAndDownload(generateVolSpeciesChartExport, 'Vol_Species');
-                    await new Promise(r => setTimeout(r, 250));
-                    await makeAndDownload(generateVolSawtimberChartExport, 'Vol_Sawtimber');
-                    await new Promise(r => setTimeout(r, 250));
-
-                    // Gingrich stocking chart — uses all areas' data
                     try {
                         const allAreaStats = calculateStandStocking(collectedData, selBaf);
                         if (allAreaStats?.length) {
@@ -836,22 +894,17 @@ document.addEventListener('DOMContentLoaded', () => {
                             const gInst = buildStockingChartExport(allAreaStats, gCanvas);
                             if (gInst) {
                                 await new Promise(r => setTimeout(r, 300));
-                                await downloadCanvas(gCanvas, 'Gingrich_Stocking');
+                                await handleCanvasPng(gCanvas, `${nameBase}_Gingrich_Stocking.png`);
                                 try { gInst.destroy(); } catch(e) {}
                             }
                         }
                     } catch(e) { console.error('Gingrich export error:', e); }
-                    await new Promise(r => setTimeout(r, 250));
 
-                    // Summary report one-pager PNG
                     try {
                         const projName = projectNameInput?.value.trim() || 'Untitled';
-                        const summaryCanvas = buildSummaryReportCanvas(
-                            reportData, plotStats, areaLetter, projName, selRule, selFc, selBaf
-                        );
-                        await downloadCanvas(summaryCanvas, 'Summary_Report');
+                        const summaryCanvas = buildSummaryReportCanvas(reportData, plotStats, areaLetter, projName, selRule, selFc, selBaf);
+                        await handleCanvasPng(summaryCanvas, `${nameBase}_Summary_Report.png`);
                     } catch(e) { console.error('Summary report export error:', e); }
-                    await new Promise(r => setTimeout(r, 250));
                 }
 
                 // Build CSV
@@ -882,9 +935,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const plotsInArea = {};
                     areaData.forEach(e => { if (e?.plotNumber) { const n=parseInt(e.plotNumber,10); if (!isNaN(n)) plotsInArea[n]=true; } });
                     const plotNsInArea = Object.keys(plotsInArea).map(Number).sort((a,b)=>a-b);
-                    plotNsInArea.forEach((pn,idx) => {
-                        plotCsv += `${pn},${plotStats.plotVolumes?.[idx]??0}\n`;
-                    });
+                    plotNsInArea.forEach((pn,idx) => { plotCsv += `${pn},${plotStats.plotVolumes?.[idx]??0}\n`; });
                     plotCsv += `\nNum Plots,${plotStats.numValidPlots}\nMean BF/Acre,${plotStats.meanV.toFixed(1)}\n`;
                     if (plotStats.numValidPlots > 1) {
                         plotCsv += `Variance,${(plotStats.stdDevV*plotStats.stdDevV).toFixed(1)}\nStd Dev,${plotStats.stdDevV.toFixed(1)}\nCV (%),${plotStats.cvV.toFixed(1)}\n`;
@@ -893,41 +944,35 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 const reportCsv = reportData ? (() => { try { return formatReportForCsv(reportData); } catch(e) { return "\n--- FORESTRY REPORT DATA ---\nError formatting report.\n"; } })() : "\n--- FORESTRY REPORT DATA ---\nReport failed.\n";
 
-                const combined = raw + tallyCsv + plotCsv + reportCsv;
-                const blob = new Blob([combined], { type: 'text/csv;charset=utf-8;' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
                 const ruleP = selRule.substring(0,4);
                 const fcP = selRule==='Doyle' ? `FC${selFc}` : '';
-                a.href = url;
-                a.download = `${projBase}_Area${areaLetter}_${ruleP}${fcP}_BAF${selBaf}_${ts}.csv`;
-                a.style.visibility = 'hidden';
-                document.body.appendChild(a); a.click(); document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-                await new Promise(r => setTimeout(r, 250));
+                const csvFilename = `${projBase}_Area${areaLetter}_${ruleP}${fcP}_BAF${selBaf}_${ts}.csv`;
+                await handleTextFile(raw + tallyCsv + plotCsv + reportCsv, csvFilename);
             }
 
-            // Export stand notes as .txt if any content exists
+            // Stand notes
             const notesText = getStandNotesText();
             if (notesText) {
                 const header = `TimberTally Stand Notes\nProject: ${projectNameInput?.value.trim() || 'Untitled'}\nExported: ${new Date().toLocaleString()}\n${'='.repeat(50)}\n\n`;
-                const notesBlob = new Blob([header + notesText], { type: 'text/plain;charset=utf-8;' });
-                const notesUrl = URL.createObjectURL(notesBlob);
-                const na = document.createElement('a');
-                na.href = notesUrl;
-                na.download = `${projBase}_StandNotes_${ts}.txt`;
-                na.style.visibility = 'hidden';
-                document.body.appendChild(na); na.click(); document.body.removeChild(na);
-                URL.revokeObjectURL(notesUrl);
+                await handleTxtFile(header + notesText, `${projBase}_StandNotes_${ts}.txt`);
             }
-            const graphMsg = graphsEnabled ? ' & Graphs' : '';
-            showFeedback(`CSV${graphMsg} saved for Area${sortedAreas.length>1?'s':''}: ${sortedAreas.join(', ')}`, false, 4000);
+
+            if (zipMode) {
+                showFeedback("Compressing ZIP...", false, 8000);
+                const zipBlob = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE', compressionOptions: { level: 6 } });
+                const zipUrl = URL.createObjectURL(zipBlob);
+                triggerDownload(zipUrl, `${projBase}_${ts}.zip`);
+                URL.revokeObjectURL(zipUrl);
+                showFeedback(`ZIP saved: ${projBase}_${ts}.zip`, false, 4000);
+            } else {
+                const graphMsg = graphsEnabled ? ' & Graphs' : '';
+                showFeedback(`CSV${graphMsg} saved for Area${sortedAreas.length>1?'s':''}: ${sortedAreas.join(', ')}`, false, 4000);
+            }
         } catch(err) {
-            console.error('CSV generation error:', err);
+            console.error('Export error:', err);
             showFeedback(`Save Error: ${err.message||'Unknown'}`, true, 6000);
         }
     }
-
     // ============================================================
     // EVENT HANDLERS
     // ============================================================
@@ -1138,8 +1183,8 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    if (showPrivacyPolicyBtn) showPrivacyPolicyBtn.addEventListener('click', () => window.open('./privacy.html', '_blank', 'noopener'));
-    if (showReadmeBtn) showReadmeBtn.addEventListener('click', () => window.open('./timbertally_reference.html', '_blank', 'noopener'));
+    if (showInfoBtn) showInfoBtn.addEventListener('click', () => window.open('./README.md', '_blank', 'noopener'));
+    if (zipExportSelect) zipExportSelect.addEventListener('change', e => { currentZipExport = e.target.value; saveSettings(); showSettingsFeedback(`ZIP export: ${currentZipExport}`); updateSaveBtnLabel(); });
 
     // Species management
     if (addSpeciesBtn) addSpeciesBtn.addEventListener('click', () => {

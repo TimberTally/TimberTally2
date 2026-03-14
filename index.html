@@ -10,6 +10,7 @@
     <link rel="apple-touch-icon" href="icon.png">
     <meta name="theme-color" content="#2d5016">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
     <script>
         // Set --sticky-block-height so tab-nav sticks exactly under the header+settings block
         function updateStickyHeight() {
@@ -89,6 +90,12 @@
                             <option value="No" selected>No</option><option value="Yes">Yes</option>
                         </select>
                     </div>
+                    <div class="input-group" id="zipExportGroup">
+                        <label for="zipExportSelect">Save as ZIP:</label>
+                        <select id="zipExportSelect">
+                            <option value="No" selected>No</option><option value="Yes">Yes</option>
+                        </select>
+                    </div>
                     <div class="input-group">
                         <label for="darkModeSelect">Dark Mode:</label>
                         <select id="darkModeSelect">
@@ -103,8 +110,7 @@
                     <span id="updateCheckStatus" class="update-check-status"></span>
                     <button type="button" id="installAppBtn" class="control-button btn-success" style="display:none;">&#128229; Install App</button>
                     <button type="button" id="showTreeKeyBtn" class="control-button btn-success">&#127807; Tree ID Key</button>
-                    <button type="button" id="showPrivacyPolicyBtn" class="control-button btn-secondary">Privacy</button>
-                    <button type="button" id="showReadmeBtn" class="control-button btn-secondary">README</button>
+                    <button type="button" id="showInfoBtn" class="control-button btn-secondary">&#8505; Info</button>
                 </div>
                 <div id="settingsFeedback" class="feedback-message" style="margin-top:8px;"></div>
             </div>

@@ -8,7 +8,8 @@ A Progressive Web App (PWA) designed for simple and efficient offline-first coll
 
 ## Understanding the App
 
-*   [TimberTally Reference Guide](timbertally_reference.html) — Calculations explained, CSV output guide, and proof of work in one tabbed document.
+*   [TimberTally Reference Guide](https://timbertally.github.io/TimberTally2/timbertally_reference.html) — Calculations explained, CSV output guide, and proof of work in one tabbed document.
+*   [Privacy Policy](https://timbertally.github.io/TimberTally2/privacy.html)
 
 ---
 
@@ -43,9 +44,10 @@ Accessed via the ⚙ Settings button in the header (collapses/expands; sticks to
 *   **Log Rule** — Doyle, Scribner, or International ¼".
 *   **Form Class** — Doyle only (70–86 in even steps; hidden for other rules).
 *   **Export Graphs** — Enable or disable PNG graph generation on CSV export.
+*   **Save as ZIP** — Bundle all CSVs, graphs, and stand notes into a single `.zip` download instead of individual files. Especially useful on iPhone where multiple file saves require individual confirmation.
 *   **Dark Mode** — Off, On, or System (follows device preference).
 
-Additional buttons in Settings: **Check Updates**, **Install App** (PWA install prompt, shown when available), **Tree ID Key**, **Privacy**, and **README**.
+Additional buttons in Settings: **Check Updates**, **Install App** (PWA install prompt, shown when available), **Tree ID Key**, and **ℹ Info** (opens the README).
 
 ### Dark Mode
 Full dark mode with a forest-green palette. Toggled via Settings or automatically matched to system preference. All UI elements, tables, dropdowns, and backgrounds are fully themed — alternating table rows use distinct shades of dark green rather than white, keeping all text readable.
@@ -82,7 +84,7 @@ Plots stand data on the **Gingrich (1967) stocking chart** for upland hardwoods.
 
 ## CSV Export & Graph Output
 
-Click **💾 Save CSV** (or **💾 Save CSV & Graphs** when graphs are enabled) to export. All calculations use the currently selected Settings (BAF, Log Rule, Form Class).
+Click **💾 Save CSV** (or **💾 Save CSV & Graphs** / **💾 Save ZIP** depending on settings) to export. All calculations use the currently selected Settings (BAF, Log Rule, Form Class).
 
 ### Per-Area CSV Files
 One CSV is generated per Area Letter present in the data, named:
@@ -110,14 +112,14 @@ Six PNG files are generated per area export:
 3.  **Vol_Species** — Volume by Species (horizontal bar, BF/Acre).
 4.  **Vol_Sawtimber** — Sawtimber Volume by Species, broken down by Small/Medium/Large size class.
 5.  **Gingrich_Stocking** — Gingrich stocking chart (1200×700px) plotting all areas on the TPA vs. BA/Acre chart with A-line and B-line curves.
-6.  **Summary_Report** — A landscape one-page summary PNG (4200×2700px, ~300 DPI equivalent) containing:
-    *   Header bar with project name, area, log rule, BAF, and export date.
-    *   Nine key stat boxes (Total Vol/Acre, Vol/Acre Cut, Vol/Acre Leave, Total TPA, TPA Cut, TPA Leave, Total BA/Acre, Avg DBH/QMD, Num Plots).
-    *   Stand Distribution table.
-    *   Species Composition table.
-    *   Volume by Species table.
-    *   Plot Volume Statistics (Mean, Std Dev, CV).
-    *   Footer bar.
+6.  **Summary_Report** — A landscape one-page summary PNG (4200×2700px, ~300 DPI equivalent) containing all key stand metrics, distribution tables, species summaries, and plot statistics.
+
+### ZIP Export (Save as ZIP = Yes)
+When enabled, all CSVs, PNGs, and the stand notes `.txt` are bundled into a single `.zip` file named:
+```
+ProjectName_Timestamp.zip
+```
+This is the recommended mode for iPhone users, as iOS requires individual save confirmation for each file download.
 
 ---
 
@@ -126,7 +128,7 @@ Six PNG files are generated per area export:
 1.  **Open the App** in a modern browser (Chrome, Firefox, Edge, Safari) on desktop or mobile. After the first load, the app works fully offline.
 2.  **Install (Optional)** — On supported browsers, accept the install prompt or use the "Install App" button in Settings for a native-like home screen experience.
 3.  **Recover Data (If Prompted)** — If unsaved data from a previous session is found, confirm to restore it.
-4.  **Configure Settings** — Click ⚙ Settings to set BAF, Log Rule, Form Class, and Graph export preference. Collapse when done.
+4.  **Configure Settings** — Click ⚙ Settings to set BAF, Log Rule, Form Class, Graph export, ZIP export, and Dark Mode preferences. Collapse when done.
 5.  **Set Plot # and Area** — Use the +/− buttons on the Data tab to set your current plot number and area letter. Reference the "Plots Needed" display beside the Notes field for sampling guidance.
 6.  **Enter Tree Data** — Select Species, DBH, and Logs. Check Cut and/or UGS if applicable. Optionally tap GPS to record coordinates or add a per-tree note. Click **✔ Submit Entry**.
 7.  **Manage Species** — Use the Species tab to add or remove species from the dropdown.
@@ -136,7 +138,7 @@ Six PNG files are generated per area export:
 11. **Check Stocking** — Use the Stocking tab to plot your stand(s) on the Gingrich chart. Click "Calculate & Plot Stocking."
 12. **Use the Compass** — Click 🧭 Compass (above the Recent Entries table on the Data tab) to open the on-screen compass. Grant orientation permission if prompted.
 13. **Delete Entries** — Check entries in the Recent Entries table and click 🗑 Delete. Use ⚠ Delete All Data (with confirmation) to clear everything.
-14. **Export** — Click **💾 Save CSV** to download CSV(s) for all areas. If graphs are enabled, all six PNG files are also downloaded automatically.
+14. **Export** — Click **💾 Save CSV** to download output for all areas. With ZIP mode enabled, everything downloads as a single file.
 
 ---
 
@@ -148,14 +150,16 @@ Six PNG files are generated per area export:
     *   `timberTallyTempSession` — autosave / session recovery.
     *   `timberTallyCustomSpecies` — custom species list.
     *   `timberTallyProjects` — named saved projects.
-    *   `timberTallySettings` — BAF, log rule, form class, graph preference, dark mode.
+    *   `timberTallySettings` — BAF, log rule, form class, graph preference, ZIP preference, dark mode.
     *   `timberTallyStandNotes` — persistent stand-level notes.
 *   **Chart.js** (`v4.4.1` via CDN) — used for in-app tally charts, the Gingrich stocking chart, and all export graph PNGs.
+*   **JSZip** (`v3.10.1` via CDN) — used for ZIP bundle export when Save as ZIP is enabled.
 *   **Volume calculations** — Doyle (FC70–86, scaled from embedded FC78 table), Scribner, and International ¼" log rules. Trees <10" DBH return 0 board feet (below sawtimber threshold).
 *   **Gingrich stocking chart** — TPA (x-axis) vs. BA/Acre (y-axis) with A-line and B-line curves interpolated from published Gingrich (1967) data points. Area points plotted as circle (Total), triangle (Cut), and square (Leave) with area letters labeled inside.
 *   **Summary Report PNG** — drawn entirely via the HTML5 Canvas 2D API (no Chart.js) at 3× logical resolution (4200×2700px physical) for print-quality output at 100% zoom.
 *   **Device APIs used** — Geolocation API (GPS), Device Orientation API (compass), beforeinstallprompt (PWA install).
 *   **Sticky header** — The app header and collapsible settings panel are wrapped in a single sticky block; the tab bar sticks directly below it with no gap. Height is measured dynamically via JavaScript on load, resize, and settings toggle.
+*   **Pull-to-refresh suppressed** — `overscroll-behavior: none` is applied to both `html` and `body` to prevent the Android Chrome pull-to-refresh indicator from appearing during normal scrolling.
 
 ---
 
@@ -183,5 +187,6 @@ Six PNG files are generated per area export:
 *   All data stored in `localStorage`. Clearing browser site data will erase saved projects, species, settings, and notes. Exporting CSV files is the primary way to permanently preserve collected data.
 *   GPS accuracy depends on device hardware and environmental conditions.
 *   Compass accuracy depends on device sensors and calibration. Keep the device away from metal objects. The heading source type (absolute, webkit, alpha) is indicated in the compass display.
-*   Graph export requires Chart.js, loaded via CDN. Internet access may be needed on first use if the library is not already cached by the service worker.
+*   Graph export and ZIP export both require CDN libraries (Chart.js and JSZip). Internet access may be needed on first use if these are not already cached by the service worker.
 *   The Summary Report PNG is generated at 4200×2700px (3× scale) for crisp printing and screen viewing without zoom. File size is typically 4–6 MB.
+*   iPhone users: enable **Save as ZIP** in Settings to receive all output files as a single download, avoiding the individual save confirmation prompt for each file.
