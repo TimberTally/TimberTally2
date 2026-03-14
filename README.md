@@ -8,16 +8,14 @@ A Progressive Web App (PWA) designed for simple and efficient offline-first coll
 
 ## Understanding the App
 
-*   [How TimberTally Calculates Results](https://timbertally.github.io/TimberTally/calculations_explained.html)
-*   [Understanding the CSV Output File](https://timbertally.github.io/TimberTally/csv_explained.html)
-*   [Proof of Work](https://timbertally.github.io/TimberTally/proof_of_work.html)
+*   [TimberTally Reference Guide](timbertally_reference.html) — Calculations explained, CSV output guide, and proof of work in one tabbed document.
 
 ---
 
 ## Features
 
 ### Offline-First PWA
-Uses a Service Worker (`timber-tally-cache-v2.1`) to cache all application files after the first load, allowing the app to run fully without network access. Includes automatic update detection with a prompted in-app update notification.
+Uses a Service Worker to cache all application files after the first load, allowing the app to run fully without network access. Includes automatic update detection with a prompted in-app update notification.
 
 ### Data Entry (Data Tab)
 Intuitive tab-based interface for recording tree data in the field:
@@ -65,7 +63,7 @@ Manage named datasets and load external data:
 Manage the species list used across all dropdowns:
 
 *   **Add Species** — Type a name and click "+ Add" to add a new species.
-*   **Remove Species** — A large multi-select list (sized to show all species without scrolling on a typical phone screen) lets you select one or more species to remove.
+*   **Remove Species** — A scrollable multi-select list lets you select one or more species to remove.
 
 ### Notes Tab
 A persistent stand-level notes field for recording observations, site conditions, ownership info, compass bearings, GPS waypoints, or any other cruise-level information. Notes auto-save locally with a debounce. On CSV export, notes are included as a separate `.txt` file alongside the CSV.
@@ -131,7 +129,7 @@ Six PNG files are generated per area export:
 4.  **Configure Settings** — Click ⚙ Settings to set BAF, Log Rule, Form Class, and Graph export preference. Collapse when done.
 5.  **Set Plot # and Area** — Use the +/− buttons on the Data tab to set your current plot number and area letter. Reference the "Plots Needed" display beside the Notes field for sampling guidance.
 6.  **Enter Tree Data** — Select Species, DBH, and Logs. Check Cut and/or UGS if applicable. Optionally tap GPS to record coordinates or add a per-tree note. Click **✔ Submit Entry**.
-7.  **Manage Species** — Use the Species tab to add or remove species from the dropdown. The list is displayed at full height to show all entries at once.
+7.  **Manage Species** — Use the Species tab to add or remove species from the dropdown.
 8.  **Manage Projects** — Use the Projects tab to save, load, or delete named projects. Load external CSV files via the file picker or by dragging and dropping a `.csv` directly onto the drop zone.
 9.  **Add Stand Notes** — Use the Notes tab for cruise-level observations. Notes save automatically and export as a `.txt` file.
 10. **Review Data** — Use the Tally tab to view summary cards, species/DBH breakdowns, and live charts. Use the Area dropdown to filter by area.
@@ -145,7 +143,7 @@ Six PNG files are generated per area export:
 ## Technical Details
 
 *   Built with vanilla HTML, CSS, and JavaScript — no frameworks or build tools.
-*   **PWA** via Service Worker (`timber-tally-cache-v2.1`) for full offline support and in-app update notifications.
+*   **PWA** via Service Worker for full offline support and in-app update notifications.
 *   **localStorage** keys used:
     *   `timberTallyTempSession` — autosave / session recovery.
     *   `timberTallyCustomSpecies` — custom species list.
@@ -172,9 +170,11 @@ Six PNG files are generated per area export:
 | `forestry-data.js` | Static lookup tables — Doyle/Scribner/International volume tables, Gingrich curves, default species list |
 | `charts.js` | Chart.js chart builders — in-app tally charts, stocking chart, export graph generators, summary report canvas |
 | `manifest.json` | Web App Manifest for PWA install and theming |
-| `service-worker.js` | Caching and offline support (`timber-tally-cache-v2.1`) |
+| `service-worker.js` | Caching and offline support |
 | `icon.png` | App icon |
 | `README.md` | This file |
+| `timbertally_reference.html` | Reference guide — calculations, CSV output, and proof of work |
+| `privacy.html` | Privacy policy |
 
 ---
 
