@@ -1,0 +1,364 @@
+<!-- START OF index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TimberTally</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon.png">
+    <meta name="theme-color" content="#2d5016">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+    <div id="appShell">
+
+        <!-- Install Prompt Banner -->
+        <div id="installBanner" class="install-banner" style="display:none;">
+            <span>&#128229; Install TimberTally for offline use</span>
+            <button id="installAcceptBtn" class="install-accept-btn">Install</button>
+            <button id="installDismissBtn" class="install-dismiss-btn" title="Dismiss">&#10005;</button>
+        </div>
+
+        <!-- Top Header -->
+        <div class="app-header">
+            <h1 class="app-title">TimberTally</h1>
+            <div class="header-actions">
+                <span id="autosaveStatus" class="autosave-status" title="Autosave status"></span>
+                <button id="saveCsvBtn" class="header-save-btn" disabled title="Save Area CSV(s)">&#128190; Save CSV</button>
+                <button id="toggleSettingsBtn" class="settings-toggle-btn" title="Show Forestry Settings" aria-expanded="false" aria-controls="settingsSection">&#9881; Settings</button>
+            </div>
+        </div>
+
+        <!-- Settings Panel -->
+        <div id="settingsSection" class="settings-panel" hidden>
+            <div class="settings-panel-inner">
+                <h2>Forestry Settings</h2>
+                <div class="settings-grid">
+                    <div class="input-group">
+                        <label for="bafSelect">BAF:</label>
+                        <select id="bafSelect">
+                            <option value="5">5</option><option value="10" selected>10</option>
+                            <option value="20">20</option><option value="30">30</option><option value="40">40</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label for="logRuleSelect">Log Rule:</label>
+                        <select id="logRuleSelect">
+                            <option value="Doyle" selected>Doyle</option>
+                            <option value="Scribner">Scribner</option>
+                            <option value="International">Intl 1/4"</option>
+                        </select>
+                    </div>
+                    <div class="input-group" id="formClassGroup">
+                        <label for="formClassSelect">Form Class:</label>
+                        <select id="formClassSelect">
+                            <option value="70">70</option><option value="72">72</option><option value="74">74</option>
+                            <option value="76">76</option><option value="78" selected>78</option><option value="80">80</option>
+                            <option value="82">82</option><option value="84">84</option><option value="86">86</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label for="generateGraphsSelect">Export Graphs:</label>
+                        <select id="generateGraphsSelect">
+                            <option value="No" selected>No</option><option value="Yes">Yes</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label for="darkModeSelect">Dark Mode:</label>
+                        <select id="darkModeSelect">
+                            <option value="off" selected>Off</option>
+                            <option value="on">On</option>
+                            <option value="system">System</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="settings-actions">
+                    <button type="button" id="manualUpdateCheckBtn" class="control-button btn-info">Check Updates</button>
+                    <span id="updateCheckStatus" class="update-check-status"></span>
+                    <button type="button" id="installAppBtn" class="control-button btn-success" style="display:none;">&#128229; Install App</button>
+                    <button type="button" id="showTreeKeyBtn" class="control-button btn-success">&#127807; Tree ID Key</button>
+                    <button type="button" id="showPrivacyPolicyBtn" class="control-button btn-secondary">Privacy</button>
+                    <button type="button" id="showReadmeBtn" class="control-button btn-secondary">README</button>
+                </div>
+                <div id="settingsFeedback" class="feedback-message" style="margin-top:8px;"></div>
+            </div>
+        </div>
+
+        <!-- Tab Navigation -->
+        <nav class="tab-nav" role="tablist">
+            <button class="tab-btn active" data-tab="takeData" role="tab" aria-selected="true">&#128203; Data</button>
+            <button class="tab-btn" data-tab="projects" role="tab" aria-selected="false">&#128193; Projects</button>
+            <button class="tab-btn" data-tab="species" role="tab" aria-selected="false">&#127807; Species</button>
+            <button class="tab-btn" data-tab="notes" role="tab" aria-selected="false">&#128221; Notes</button>
+            <button class="tab-btn" data-tab="tally" role="tab" aria-selected="false">&#128202; Tally</button>
+            <button class="tab-btn" data-tab="stocking" role="tab" aria-selected="false">&#128200; Stocking</button>
+        </nav>
+
+        <div id="tabContent">
+
+            <!-- TAB 1: TAKE DATA -->
+            <div id="tab-takeData" class="tab-panel active" role="tabpanel">
+                <div class="input-section">
+                    <div class="plot-settings-header">
+                        <div class="counter-group">
+                            <label class="plot-number-label">Plot #:</label>
+                            <div class="plot-counter-group">
+                                <button type="button" id="plotDecrementBtn" class="plot-counter-btn">-</button>
+                                <span id="plotNumberDisplay" class="counter-display">1</span>
+                                <button type="button" id="plotIncrementBtn" class="plot-counter-btn">+</button>
+                            </div>
+                        </div>
+                        <div class="counter-group">
+                            <label class="area-letter-label">Area:</label>
+                            <div class="area-counter-group">
+                                <button type="button" id="areaDecrementBtn" class="plot-counter-btn area-counter-btn">-</button>
+                                <span id="areaLetterDisplay" class="counter-display">A</span>
+                                <button type="button" id="areaIncrementBtn" class="plot-counter-btn area-counter-btn">+</button>
+                            </div>
+                        </div>
+                        <div id="plotGoalDisplay" class="plot-goal-inline">
+                            Plots needed: <span id="neededPlotsValue">---</span>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="speciesSelect">Species:</label>
+                        <select id="speciesSelect" class="species-select-large"></select>
+                    </div>
+
+                    <div class="input-row-half">
+                        <div class="input-group half-width">
+                            <label>DBH:</label>
+                            <div class="stepper" id="dbhStepper">
+                                <button type="button" class="stepper-btn stepper-dec" id="dbhDecBtn" aria-label="Decrease DBH">&#8722;</button>
+                                <span class="stepper-val" id="dbhDisplay">10"</span>
+                                <input type="hidden" id="dbhSelect" value="10">
+                                <button type="button" class="stepper-btn stepper-inc" id="dbhIncBtn" aria-label="Increase DBH">+</button>
+                            </div>
+                        </div>
+                        <div class="input-group half-width">
+                            <label for="logsSelect">Logs:</label>
+                            <select id="logsSelect"></select>
+                        </div>
+                    </div>
+
+                    <div class="checkbox-location-row">
+                        <div class="cut-checkbox-group">
+                            <input type="checkbox" id="cutCheckbox">
+                            <label for="cutCheckbox" class="inline-label">Cut</label>
+                        </div>
+                        <div class="cut-checkbox-group">
+                            <input type="checkbox" id="ugsCheckbox">
+                            <label for="ugsCheckbox" class="inline-label ugs-label" title="Unacceptable Growing Stock (default: AGS)">UGS</label>
+                        </div>
+                        <span id="locationStatus" class="location-status-text">Location not set</span>
+                        <button type="button" id="getLocationBtn" class="control-button btn-info gps-btn">&#128205; GPS</button>
+                    </div>
+
+                    <div class="input-group" style="margin-top:8px;">
+                        <label for="notesTextarea">Notes (optional):</label>
+                        <textarea id="notesTextarea" rows="2" placeholder="Optional field notes..."></textarea>
+                    </div>
+
+                    <button type="button" id="submitBtn" class="submit-btn">&#10004; Submit Entry</button>
+                    <div id="feedbackMsg" class="feedback-message"></div>
+                </div>
+
+                <div class="output-section">
+                    <div class="output-controls">
+                        <h2>Recent Entries <span class="entry-count-badge" id="entryCount">0</span></h2>
+                        <div class="output-ctrl-btns">
+                            <button id="showCompassBtn" class="control-button compass-button" title="Show Compass">&#129517; Compass</button>
+                            <button id="deleteBtn" class="control-button delete-button" disabled>&#128465; Delete</button>
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table id="entriesTable">
+                            <thead>
+                                <tr>
+                                    <th></th><th>Plot</th><th>Area</th><th>Species</th>
+                                    <th>DBH</th><th>Logs</th><th>Cut</th><th>UGS</th>
+                                </tr>
+                            </thead>
+                            <tbody id="entriesTableBody">
+                                <tr id="noEntriesRow">
+                                    <td colspan="8" class="no-entries-msg">No entries yet. Add a tree above.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="delete-all-section">
+                        <button id="deleteAllBtn" class="delete-all-button" disabled>&#9888; Delete All Data</button>
+                    </div>
+                </div>
+            </div><!-- end tab-takeData -->
+
+            <!-- TAB 2: PROJECTS -->
+            <div id="tab-projects" class="tab-panel" role="tabpanel" hidden>
+                <div class="input-section">
+                    <h2>Manage Projects</h2>
+                    <div class="project-group">
+                        <label for="projectNameInput">Current Project Name:</label>
+                        <div class="input-with-button">
+                            <input type="text" id="projectNameInput" placeholder="Enter project name to save">
+                            <button id="saveProjectBtn" class="btn-success">Save</button>
+                        </div>
+                    </div>
+                    <div class="project-group">
+                        <label for="loadProjectSelect">Load Saved Project:</label>
+                        <div class="input-with-button">
+                            <select id="loadProjectSelect"><option value="">-- Select a project --</option></select>
+                            <button id="loadProjectBtn" class="btn-info">Load</button>
+                            <button id="deleteProjectBtn" class="delete-button">Del</button>
+                        </div>
+                    </div>
+                    <div class="project-group">
+                        <label for="csvFileInput">Load Project from CSV File:</label>
+                        <div class="input-with-button">
+                            <input type="file" id="csvFileInput" accept=".csv">
+                            <button id="loadCsvBtn" class="btn-info">Load CSV</button>
+                        </div>
+                    </div>
+                    <div id="projectMgmtFeedback" class="feedback-message" style="margin-top:10px;"></div>
+                </div>
+            </div><!-- end tab-projects -->
+
+            <!-- TAB 3: SPECIES -->
+            <div id="tab-species" class="tab-panel" role="tabpanel" hidden>
+                <div class="input-section">
+                    <h2>Manage Species</h2>
+                    <div class="species-add-group">
+                        <label for="newSpeciesInput">Add New Species:</label>
+                        <div class="input-with-button">
+                            <input type="text" id="newSpeciesInput" placeholder="Enter species name">
+                            <button id="addSpeciesBtn" class="btn-success">+ Add</button>
+                        </div>
+                    </div>
+                    <div class="species-remove-group">
+                        <label for="removeSpeciesSelect">Select Species to Remove:</label>
+                        <select id="removeSpeciesSelect" multiple size="8"></select>
+                        <button id="removeSpeciesBtn" class="delete-button" style="width:100%;margin-top:8px;">Remove Selected</button>
+                    </div>
+                    <div id="speciesMgmtFeedback" class="feedback-message" style="margin-top:10px;"></div>
+                </div>
+            </div><!-- end tab-species -->
+
+            <!-- TAB 4: NOTES -->
+            <div id="tab-notes" class="tab-panel" role="tabpanel" hidden>
+                <div class="input-section">
+                    <div class="notes-header-row">
+                        <h2>Stand Notes</h2>
+                        <button id="clearNotesBtn" class="control-button delete-button">&#128465; Clear</button>
+                    </div>
+                    <p class="notes-hint">Persistent notes for this cruise — saved locally and exported as a .txt file alongside your CSV.</p>
+                    <textarea id="standNotesTextarea" class="stand-notes-textarea" placeholder="Record stand observations, site conditions, ownership info, compass bearings, GPS waypoints..."></textarea>
+                    <div id="notesSavedStatus" class="notes-saved-status"></div>
+                </div>
+            </div><!-- end tab-notes -->
+
+            <!-- TAB 5: TALLY -->
+            <div id="tab-tally" class="tab-panel" role="tabpanel" hidden>
+                <div class="tally-header-row">
+                    <h2>Data Tally</h2>
+                    <div class="tally-area-selector">
+                        <label for="tallyAreaSelect">Area:</label>
+                        <select id="tallyAreaSelect"><option value="ALL">All Areas</option></select>
+                    </div>
+                </div>
+                <div id="tallySummaryCards" class="summary-cards"></div>
+                <div class="input-section" style="margin-top:10px;">
+                    <h3 class="section-subhead">Tree Tally by Species / DBH / Logs</h3>
+                    <div id="tallyResults"><p class="placeholder-msg">Switch to this tab to see tally.</p></div>
+                </div>
+                <div class="input-section" style="margin-top:10px;">
+                    <h3 class="section-subhead">Stand Charts</h3>
+                    <div id="tallyChartsContainer">
+                        <p class="placeholder-msg">Add data to see charts.</p>
+                    </div>
+                </div>
+            </div><!-- end tab-tally -->
+
+            <!-- TAB 5: STOCKING -->
+            <div id="tab-stocking" class="tab-panel" role="tabpanel" hidden>
+                <div class="input-section">
+                    <h2>Gingrich Stocking Chart</h2>
+                    <p class="stocking-desc">Plots each Area's stand on the Gingrich (1967) stocking chart for upland hardwoods. Each area is shown as Total, Cut, and Leave tree points relative to A-level and B-level stocking curves.</p>
+                    <div class="stocking-controls">
+                        <button id="calculateStockingBtn" class="btn-success stocking-calc-btn">&#128202; Calculate &amp; Plot Stocking</button>
+                    </div>
+                    <div id="stockingResults" class="stocking-results" style="display:none;">
+                        <div id="stockingStatsTable" class="stocking-stats"></div>
+                        <div class="stocking-chart-wrapper">
+                            <canvas id="stockingChartCanvas"></canvas>
+                        </div>
+                    </div>
+                    <div id="stockingNoData" class="stocking-nodata" style="display:none;">
+                        <p>&#9888; Not enough data to plot. Add tree entries and try again.</p>
+                    </div>
+                </div>
+            </div><!-- end tab-stocking -->
+
+        </div><!-- end tabContent -->
+
+    </div><!-- end appShell -->
+
+    <!-- Compass Overlay -->
+    <div id="compassContainer" style="display:none;" role="dialog" aria-label="Compass">
+        <div id="compass"><div id="compassNeedle"></div></div>
+        <div id="compassInfo">
+            <span id="compassHeading">---&#176;</span>
+            <span id="compassSource"></span>
+            <p>Point device away from metal objects for accuracy.</p>
+        </div>
+        <button id="closeCompassBtn">Close</button>
+    </div>
+
+    <!-- Update Notification -->
+    <div id="updateNotification" class="update-notification" style="display:none;">
+        A new version is available!
+        <button id="updateNowBtn">Update Now</button>
+        <button id="updateDismissBtn" title="Dismiss">&#10005;</button>
+    </div>
+
+    <!-- Tree Key Modal -->
+    <div id="treeKeyModal" class="modal-overlay" style="display:none;" role="dialog" aria-label="Tree ID Key">
+        <div class="modal-content">
+            <button id="closeTreeKeyBtn" class="modal-close-btn" title="Close Key">&#215;</button>
+            <h2>Simplified Tree ID Key (Eastern US Deciduous)</h2>
+            <div class="key-content">
+                <p><em>Note: This is a simplified guide. Always confirm with a field guide.</em></p><hr>
+                <p><strong>1.</strong></p><ul><li><strong>a.</strong> Leaves/buds <strong>Opposite</strong> &#8594; Go to <strong>2</strong></li><li><strong>b.</strong> Leaves/buds <strong>Alternate</strong> &#8594; Go to <strong>4</strong></li></ul>
+                <p><strong>2. (Opposite Arrangement)</strong></p><ul><li><strong>a.</strong> Leaves <strong>Compound</strong>. Stout twigs, large leaf scars. &#8594; <strong>Ash</strong> (<em>Fraxinus</em> spp.)</li><li><strong>b.</strong> Leaves <strong>Simple</strong>. &#8594; Go to <strong>3</strong></li></ul>
+                <p><strong>3. (Opposite, Simple Leaves)</strong></p><ul><li><strong>a.</strong> Leaves <strong>Lobed</strong>. Fruit: paired winged samara. &#8594; <strong>Maple</strong> (<em>Acer</em> spp.)</li><li><strong>b.</strong> Leaves <strong>Unlobed</strong>. Blocky bark. Fruit: drupe cluster. &#8594; <strong>Flowering Dogwood</strong> (<em>Cornus florida</em>)</li></ul>
+                <p><strong>4. (Alternate Arrangement)</strong></p><ul><li><strong>a.</strong> Leaves <strong>Compound</strong>. &#8594; Go to <strong>5</strong></li><li><strong>b.</strong> Leaves <strong>Simple</strong>. &#8594; Go to <strong>6</strong></li></ul>
+                <p><strong>5. (Alternate, Compound Leaves)</strong></p><ul><li><strong>a.</strong> Pith <strong>Chambered</strong>. Large leaf scars. &#8594; <strong>Walnut</strong> (<em>Juglans</em> spp.)</li><li><strong>b.</strong> Pith <strong>Solid</strong>. Stout twigs. &#8594; <strong>Hickory</strong> (<em>Carya</em> spp.)</li><li><strong>c.</strong> Often thorny. Numerous small leaflets. &#8594; <strong>Locust</strong> (<em>Robinia/Gleditsia</em> spp.)</li></ul>
+                <p><strong>6.</strong></p><ul><li><strong>a.</strong> Leaves <strong>Lobed</strong>. &#8594; Go to <strong>7</strong></li><li><strong>b.</strong> Leaves <strong>Unlobed</strong>. &#8594; Go to <strong>8</strong></li></ul>
+                <p><strong>7. (Alternate, Simple, Lobed)</strong></p><ul><li><strong>a.</strong> Lobes <strong>Rounded</strong>. Fruit: Acorn. &#8594; <strong>White Oak Group</strong></li><li><strong>b.</strong> Lobes <strong>Pointed w/ Bristle Tip</strong>. Fruit: Acorn. &#8594; <strong>Red Oak Group</strong></li><li><strong>c.</strong> <strong>Variable shapes</strong>. <strong>Aromatic</strong> (spicy). &#8594; <strong>Sassafras</strong></li><li><strong>d.</strong> <strong>4 Lobes</strong>, tip Flattened. Tulip-shaped flower. &#8594; <strong>Tulip Poplar</strong></li></ul>
+                <p><strong>8. (Alternate, Simple, Unlobed)</strong></p><ul><li><strong>a.</strong> Margin <strong>Entire</strong>. &#8594; Go to <strong>9</strong></li><li><strong>b.</strong> Margin <strong>Toothed</strong>. &#8594; Go to <strong>10</strong></li></ul>
+                <p><strong>9.</strong></p><ul><li><strong>a.</strong> Bark smooth, gray, <strong>Muscle-like</strong>. Buds long, slender. &#8594; <strong>American Beech</strong></li><li><strong>b.</strong> Bark dark, <strong>Blocky</strong>. Leaves thick/glossy. &#8594; <strong>Black Gum</strong></li></ul>
+                <p><strong>10.</strong></p><ul><li><strong>a.</strong> Bark <strong>Peeling horizontally</strong>. Horizontal lenticels. &#8594; <strong>Birch</strong></li><li><strong>b.</strong> Bark NOT peeling. &#8594; Go to <strong>11</strong></li></ul>
+                <p><strong>11.</strong></p><ul><li><strong>a.</strong> Leaf base <strong>Asymmetrical</strong>. Surface often <strong>Rough</strong>. &#8594; <strong>Elm</strong></li><li><strong>b.</strong> Leaf base <strong>Symmetrical</strong>. &#8594; Go to <strong>12</strong></li></ul>
+                <p><strong>12.</strong></p><ul><li><strong>a.</strong> <strong>Cherry/almond smell</strong> from twig. Small fruit. &#8594; <strong>Cherry</strong></li><li><strong>b.</strong> Leaf <strong>Triangular/Heart-shaped</strong>. Petiole <strong>Flattened</strong>. &#8594; <strong>Poplar / Aspen</strong></li><li><strong>c.</strong> <strong>Finely Toothed</strong>. Bark smooth, gray, muscle-like. Small tree. &#8594; <strong>American Hornbeam</strong></li><li><strong>d.</strong> <strong>Doubly Serrate</strong>. Bark grayish, <strong>Shreddy</strong>. Hop-like fruit. &#8594; <strong>Eastern Hophornbeam</strong></li></ul>
+                <hr>
+                <button type="button" id="closeTreeKeyBtnBottom" class="control-button btn-secondary">Close Key</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden Canvases for Export Graphs -->
+    <div style="position:absolute;left:-9999px;top:-9999px;pointer-events:none;">
+        <canvas id="baChartCanvas" width="800" height="450"></canvas>
+        <canvas id="tpaChartCanvas" width="800" height="450"></canvas>
+        <canvas id="volSpeciesChartCanvas" width="800" height="550"></canvas>
+        <canvas id="volSawtimberChartCanvas" width="800" height="450"></canvas>
+    </div>
+
+    <script src="forestry-data.js" defer></script>
+    <script src="forestry-calc.js" defer></script>
+    <script src="charts.js" defer></script>
+    <script src="script.js" defer></script>
+</body>
+</html>
