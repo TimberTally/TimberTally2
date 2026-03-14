@@ -958,10 +958,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (notesTextarea) notesTextarea.value = '';
             currentLocation = null;
             if (locationStatus) { locationStatus.textContent = 'Location not set'; locationStatus.style.color = ''; }
-
-            // Scroll to entries list
-            const outputSection = document.querySelector('#tab-takeData .output-section');
-            if (outputSection) setTimeout(() => outputSection.scrollIntoView({ behavior: 'smooth', block: 'start' }), 150);
         } catch(e) {
             console.error('Submit error:', e);
             showFeedback(`Submit Error: ${e.message}`, true, 5000);
@@ -1142,8 +1138,8 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    if (showPrivacyPolicyBtn) showPrivacyPolicyBtn.addEventListener('click', () => window.open('https://timbertally.github.io/TimberTally/privacy.html', '_blank', 'noopener,noreferrer'));
-    if (showReadmeBtn) showReadmeBtn.addEventListener('click', () => window.open('https://github.com/TimberTally/TimberTally/blob/main/README.md', '_blank', 'noopener,noreferrer'));
+    if (showPrivacyPolicyBtn) showPrivacyPolicyBtn.addEventListener('click', () => window.open('./privacy.html', '_blank', 'noopener'));
+    if (showReadmeBtn) showReadmeBtn.addEventListener('click', () => window.open('./timbertally_reference.html', '_blank', 'noopener'));
 
     // Species management
     if (addSpeciesBtn) addSpeciesBtn.addEventListener('click', () => {

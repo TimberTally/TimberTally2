@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>TimberTally</title>
     <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="manifest.json">
@@ -35,15 +35,15 @@
 
     <div id="appShell">
 
+        <!-- Sticky top block: install banner + header + settings panel together -->
+        <div class="sticky-top-block">
+
         <!-- Install Prompt Banner -->
         <div id="installBanner" class="install-banner" style="display:none;">
             <span>&#128229; Install TimberTally for offline use</span>
             <button id="installAcceptBtn" class="install-accept-btn">Install</button>
             <button id="installDismissBtn" class="install-dismiss-btn" title="Dismiss">&#10005;</button>
         </div>
-
-        <!-- Sticky top block: header + settings panel together so tab-nav hugs directly beneath -->
-        <div class="sticky-top-block">
 
         <!-- Top Header -->
         <div class="app-header">
@@ -274,7 +274,7 @@
                     </div>
                     <div class="species-remove-group">
                         <label for="removeSpeciesSelect">Select Species to Remove:</label>
-                        <select id="removeSpeciesSelect" multiple size="30"></select>
+                        <select id="removeSpeciesSelect" multiple size="12"></select>
                         <button id="removeSpeciesBtn" class="delete-button" style="width:100%;margin-top:8px;">Remove Selected</button>
                     </div>
                     <div id="speciesMgmtFeedback" class="feedback-message" style="margin-top:10px;"></div>

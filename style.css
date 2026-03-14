@@ -59,11 +59,17 @@ body {
     min-height: 100vh;
 }
 
-/* Sticky wrapper: header + settings panel as one unit */
+/* Sticky wrapper: header + install banner + settings panel as one unit.
+   padding-top covers the status bar / notch area on mobile so no gap shows. */
 .sticky-top-block {
     position: sticky;
     top: 0;
     z-index: 100;
+    padding-top: env(safe-area-inset-top, 0px);
+    background-color: #2d5016; /* matches header so status-bar area is seamless */
+}
+body.dark-mode .sticky-top-block {
+    background-color: #1e3312;
 }
 
 .app-header {
@@ -747,7 +753,8 @@ input[type="file"] {
 
 #removeSpeciesSelect {
     width: 100%;
-    min-height: 70vh;
+    min-height: 240px;
+    max-height: 50vh;
     border: 1.5px solid #c8d8b8;
     border-radius: var(--radius-sm);
     font-size: 0.95em;
