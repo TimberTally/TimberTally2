@@ -26,6 +26,14 @@
 
 * { box-sizing: border-box; }
 
+/* Prevent color bleed above sticky header on iOS overscroll (issue 1) */
+html {
+    background-color: #2d5016;
+}
+body.dark-mode ~ html, html:has(body.dark-mode) {
+    background-color: #1e3312;
+}
+
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
     font-size: 15px;
@@ -36,6 +44,8 @@ body {
     color: var(--text-dark);
     touch-action: manipulation;
     -webkit-tap-highlight-color: transparent;
+    /* Prevent color bleed above/below sticky header on iOS rubber-band scroll */
+    overscroll-behavior-y: none;
 }
 
 /* ============================
@@ -49,6 +59,13 @@ body {
     min-height: 100vh;
 }
 
+/* Sticky wrapper: header + settings panel as one unit */
+.sticky-top-block {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
 .app-header {
     background: linear-gradient(135deg, var(--forest-dark) 0%, var(--forest-mid) 100%);
     color: white;
@@ -57,9 +74,6 @@ body {
     align-items: center;
     padding: 10px 14px;
     gap: 10px;
-    position: sticky;
-    top: 0;
-    z-index: 100;
     box-shadow: 0 2px 6px rgba(0,0,0,0.3);
 }
 
@@ -169,7 +183,7 @@ body {
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
     position: sticky;
-    top: 52px;
+    top: var(--sticky-block-height, 50px);
     z-index: 99;
     box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
@@ -291,6 +305,15 @@ textarea { resize: vertical; min-height: 44px; }
     font-weight: 500;
     border-color: var(--forest-mid);
     min-height: 46px;
+}
+
+/* Logs select - match DBH stepper height */
+#logsSelect {
+    min-height: 46px;
+    padding: 10px 28px 10px 10px;
+    font-size: 1.05em;
+    font-weight: 500;
+    border-color: var(--forest-mid);
 }
 
 /* DBH + Logs side by side */
@@ -610,7 +633,7 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
     font-style: italic;
     color: var(--text-muted);
     padding: 20px;
-    background: #fff !important;
+    background: var(--bg-card) !important;
 }
 
 /* ============================
@@ -651,6 +674,51 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 .feedback-message.error { background: #f8d7da; color: #721c24; border-color: #f5c6cb; }
 
 /* ============================
+   CSV DRAG & DROP ZONE
+   ============================ */
+.csv-drop-zone {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    border: 2px dashed var(--forest-border);
+    border-radius: var(--radius-md);
+    background: var(--forest-pale);
+    padding: 28px 16px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    user-select: none;
+}
+.csv-drop-zone.drag-over {
+    border-color: var(--forest-mid);
+    background: #d4eabf;
+}
+body.dark-mode .csv-drop-zone {
+    background: #162a0e;
+    border-color: #3a5a28;
+}
+body.dark-mode .csv-drop-zone.drag-over {
+    border-color: var(--forest-dark);
+    background: #1e3312;
+}
+.csv-drop-icon {
+    font-size: 2em;
+    line-height: 1;
+}
+.csv-drop-text {
+    font-weight: 600;
+    color: var(--forest-dark);
+    font-size: 0.95em;
+}
+.csv-drop-hint {
+    font-size: 0.8em;
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+/* ============================
    PROJECT / SPECIES MANAGEMENT
    ============================ */
 .project-group, .species-add-group, .species-remove-group { margin-bottom: 14px; }
@@ -679,7 +747,7 @@ input[type="file"] {
 
 #removeSpeciesSelect {
     width: 100%;
-    min-height: 120px;
+    min-height: 70vh;
     border: 1.5px solid #c8d8b8;
     border-radius: var(--radius-sm);
     font-size: 0.95em;
@@ -1116,6 +1184,17 @@ input[type="file"] {
     user-select: none;
 }
 
+/* Notes label row with plots-needed counter inline */
+.notes-label-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 4px;
+}
+.notes-label-row label {
+    margin-bottom: 0;
+}
+
 /* ============================
    NOTES TAB
    ============================ */
@@ -1134,7 +1213,7 @@ input[type="file"] {
 }
 .stand-notes-textarea {
     width: 100%;
-    min-height: 320px;
+    min-height: 480px;
     font-size: 0.95em;
     font-family: inherit;
     padding: 10px 12px;
@@ -1172,6 +1251,7 @@ body.dark-mode {
     --accent-red:    #e05555;
     --bg-page:       #111a0d;
     --bg-card:       #1a2712;
+    --bg-row-alt:    #223318;
     --text-dark:     #d8ecc8;
     --text-muted:    #7a9a60;
 }
@@ -1192,13 +1272,21 @@ body.dark-mode .stepper-btn { background: #1e3312; color: var(--forest-dark); }
 body.dark-mode .stepper-val { color: var(--text-dark); }
 body.dark-mode .output-section { background: var(--bg-card); }
 body.dark-mode table thead { background: var(--forest-light); }
-body.dark-mode table tbody tr:nth-child(even) { background: #1e3312; }
-body.dark-mode table tbody tr:hover { background: #253d18; }
+body.dark-mode table tbody tr:nth-child(odd),
+body.dark-mode #entriesTable tbody tr:nth-child(odd) { background: var(--bg-card) !important; }
+body.dark-mode table tbody tr:nth-child(even),
+body.dark-mode #entriesTable tbody tr:nth-child(even) { background: #223318 !important; }
+body.dark-mode table tbody tr:hover,
+body.dark-mode #entriesTable tbody tr:hover { background: #253d18 !important; }
+body.dark-mode table tbody td,
+body.dark-mode #entriesTable tbody td { color: var(--text-dark); }
 body.dark-mode .summary-card { background: var(--forest-light); border-color: var(--forest-border); }
 body.dark-mode .install-banner { background: #1e3312; }
 body.dark-mode .location-status-text { background: #0f1e09; border-color: var(--forest-border); color: var(--text-muted); }
 body.dark-mode .modal-content { background: #1a2712; border-color: var(--forest-border); }
 body.dark-mode .update-notification { background: #1e3312; border-color: #3a5a28; color: var(--text-dark); }
+body.dark-mode input[type="file"] { background: #0f1e09; color: var(--text-dark); border-color: var(--forest-border); }
+body.dark-mode .input-section, body.dark-mode .project-group { background: var(--bg-card); }
 
 /* ============================
    PRINT STYLESHEET

@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy Policy — TimberTally</title>
+    <style>
+        :root {
+            --green-dark: #2d5016;
+            --green-mid:  #3d6b20;
+            --green-pale: #eaf4de;
+            --blue:       #0056b3;
+            --border:     #dde8d0;
+            --text:       #222;
+            --muted:      #555;
+        }
+        * { box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            font-size: 15px;
+            line-height: 1.7;
+            color: var(--text);
+            margin: 0;
+            padding: 0;
+            background: #f8fbf4;
+        }
+        header {
+            background: linear-gradient(135deg, var(--green-dark), var(--green-mid));
+            color: #fff;
+            padding: 32px 24px 24px;
+            text-align: center;
+        }
+        header h1 { margin: 0 0 6px; font-size: 1.7em; }
+        header p  { margin: 0; opacity: 0.85; font-size: 0.9em; }
+        main {
+            max-width: 780px;
+            margin: 0 auto;
+            padding: 32px 24px 60px;
+            background: #fff;
+        }
+        h2 {
+            color: var(--green-dark);
+            font-size: 1.1em;
+            margin: 2em 0 0.5em;
+            padding-bottom: 6px;
+            border-bottom: 2px solid var(--border);
+        }
+        h2:first-child { margin-top: 0; }
+        p  { margin: 0.3em 0 0.8em; }
+        ul { margin: 0.3em 0 0.9em 1.4em; padding: 0; }
+        li { margin-bottom: 0.4em; }
+        strong { color: #111; }
+        a  { color: var(--blue); }
+        .effective {
+            text-align: center;
+            color: var(--muted);
+            font-size: 0.88em;
+            font-style: italic;
+            margin-bottom: 28px;
+        }
+        .highlight {
+            background: var(--green-pale);
+            border-left: 3px solid var(--green-mid);
+            padding: 10px 14px;
+            margin: 16px 0;
+            border-radius: 0 4px 4px 0;
+            font-size: 0.94em;
+        }
+        footer {
+            text-align: center;
+            padding: 16px;
+            font-size: 0.82em;
+            color: var(--muted);
+            border-top: 1px solid var(--border);
+            background: #f8fbf4;
+        }
+        footer a { color: var(--blue); text-decoration: none; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>🌲 TimberTally — Privacy Policy</h1>
+    <p>How your data is collected, stored, and protected</p>
+</header>
+
+<main>
+    <p class="effective">Effective Date: March 13, 2026 &nbsp;|&nbsp; Last Updated: March 13, 2026</p>
+
+    <div class="highlight">
+        <strong>Short version:</strong> TimberTally stores all data locally on your device. We do not collect, transmit, sell, or share your personal information with anyone. No account is required. No data leaves your device unless you explicitly export it yourself.
+    </div>
+
+    <h2>1. About This Policy</h2>
+    <p>This Privacy Policy applies to the TimberTally application ("App", "we", "us"), available as a Progressive Web App (PWA) and on the Google Play Store. It describes what information the App accesses, how that information is used, and your rights regarding that information. By using TimberTally, you agree to the practices described here.</p>
+
+    <h2>2. Developer Information</h2>
+    <p>
+        <strong>App Name:</strong> TimberTally<br>
+        <strong>Contact:</strong> <a href="mailto:timbertallyapp@gmail.com">timbertallyapp@gmail.com</a>
+    </p>
+
+    <h2>3. Data We Collect and Why</h2>
+    <p>TimberTally collects only the data you actively enter or choose to enable. All data is stored locally on your device using the browser's <code>localStorage</code> and service worker cache. No data is transmitted to any server.</p>
+
+    <ul>
+        <li>
+            <strong>Timber Inventory Data</strong> — Plot numbers, species, DBH, log count, cut/UGS status, and optional per-tree notes that you type in. Stored locally to support data entry, calculations, and CSV export.
+        </li>
+        <li>
+            <strong>Stand Notes</strong> — Free-form notes you enter on the Notes tab. Stored locally and exported as a <code>.txt</code> file only when you initiate an export.
+        </li>
+        <li>
+            <strong>Forestry Settings</strong> — Your selected BAF, Log Rule, Form Class, graph preference, and dark mode setting. Stored locally so your preferences persist between sessions.
+        </li>
+        <li>
+            <strong>Custom Species List</strong> — Any species names you add or remove. Stored locally on your device.
+        </li>
+        <li>
+            <strong>Saved Projects</strong> — Named datasets you choose to save using the Projects feature. Stored locally on your device.
+        </li>
+        <li>
+            <strong>Session Recovery Data</strong> — A temporary snapshot of unsaved entries, stored locally to allow recovery if the app closes unexpectedly. Cleared once you confirm or dismiss the recovery prompt.
+        </li>
+        <li>
+            <strong>GPS / Location Data (optional)</strong> — Latitude and longitude captured only when you tap the "GPS" button and grant permission via the standard browser/OS prompt. Location data is stored locally with the corresponding tree entry and is never transmitted. You can use the app fully without enabling location access.
+        </li>
+        <li>
+            <strong>Device Orientation (optional)</strong> — Used only when you open the compass feature. Accessed in real time to display a heading and not stored in any form.
+        </li>
+        <li>
+            <strong>App Cache Files</strong> — The service worker caches the app's own HTML, CSS, JavaScript, and icon files on your device for offline use. These are application files, not personal data.
+        </li>
+    </ul>
+
+    <h2>4. Data We Do Not Collect</h2>
+    <p>TimberTally does not collect:</p>
+    <ul>
+        <li>Names, email addresses, or any account information (no login required)</li>
+        <li>Advertising identifiers or tracking cookies</li>
+        <li>Analytics, usage statistics, or crash reports sent to any external service</li>
+        <li>Financial or payment information</li>
+        <li>Any data from contacts, photos, camera, microphone, or other device sensors beyond the optional GPS and compass features described above</li>
+    </ul>
+
+    <h2>5. How Data Is Stored and Protected</h2>
+    <p>All user-entered data is stored exclusively in your device's browser <code>localStorage</code> and is never uploaded, synchronized, or backed up to any external server or cloud service. The security of your locally stored data depends on the security of your own device and browser. We do not implement additional encryption beyond what your browser natively provides.</p>
+
+    <p>Clearing your browser's site data or uninstalling the app will permanently erase all locally stored information, including saved projects, custom species, settings, and any unexported inventory data.</p>
+
+    <h2>6. Data Sharing and Disclosure</h2>
+    <p>We do not share, sell, rent, license, or disclose your data to any third party — ever. The only way data leaves the app is when <strong>you</strong> initiate a "Save CSV" export, which saves files directly to your device. What you do with those exported files is entirely your choice.</p>
+    <p>We do not use any third-party analytics SDKs, advertising networks, or crash-reporting services. The only external resource the app loads is the Chart.js library from a public CDN (<code>cdn.jsdelivr.net</code>) for rendering graphs. This CDN request does not include any user data.</p>
+
+    <h2>7. Permissions Requested</h2>
+    <table style="width:100%; border-collapse:collapse; font-size:0.93em; margin:10px 0 16px;">
+        <thead>
+            <tr>
+                <th style="background:var(--green-pale);color:var(--green-dark);padding:8px 10px;text-align:left;border-bottom:2px solid var(--border);">Permission</th>
+                <th style="background:var(--green-pale);color:var(--green-dark);padding:8px 10px;text-align:left;border-bottom:2px solid var(--border);">Why It's Used</th>
+                <th style="background:var(--green-pale);color:var(--green-dark);padding:8px 10px;text-align:left;border-bottom:2px solid var(--border);">Required?</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td style="padding:7px 10px;border-bottom:1px solid var(--border);">Location (Fine)</td>
+                <td style="padding:7px 10px;border-bottom:1px solid var(--border);">Capture GPS coordinates for a tree entry when you tap the GPS button</td>
+                <td style="padding:7px 10px;border-bottom:1px solid var(--border);">No — optional</td>
+            </tr>
+            <tr style="background:#f4f9ee;">
+                <td style="padding:7px 10px;border-bottom:1px solid var(--border);">Device Sensors (Orientation)</td>
+                <td style="padding:7px 10px;border-bottom:1px solid var(--border);">Display a compass heading when you open the compass feature</td>
+                <td style="padding:7px 10px;border-bottom:1px solid var(--border);">No — optional</td>
+            </tr>
+            <tr>
+                <td style="padding:7px 10px;border-bottom:1px solid var(--border);">Storage / Local Storage</td>
+                <td style="padding:7px 10px;border-bottom:1px solid var(--border);">Save your data, settings, and projects locally on your device</td>
+                <td style="padding:7px 10px;border-bottom:1px solid var(--border);">Yes — core function</td>
+            </tr>
+            <tr style="background:#f4f9ee;">
+                <td style="padding:7px 10px;">Internet Access</td>
+                <td style="padding:7px 10px;">Load Chart.js from CDN on first use; all other features work offline</td>
+                <td style="padding:7px 10px;">No — offline use supported after first load</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>8. Children's Privacy</h2>
+    <p>TimberTally is not directed at children under the age of 13 (or the applicable age in your jurisdiction). We do not knowingly collect personal information from children. Because the app stores no data on any server, there is no mechanism by which children's data could be transmitted to us. If you have concerns, please contact us at <a href="mailto:timbertallyapp@gmail.com">timbertallyapp@gmail.com</a>.</p>
+
+    <h2>9. Your Rights and Data Controls</h2>
+    <p>Because all data is stored locally on your device and never transmitted to us, you have complete control:</p>
+    <ul>
+        <li><strong>Access</strong> — View all your data directly in the app at any time.</li>
+        <li><strong>Export</strong> — Use "Save CSV" to export your data in a portable format.</li>
+        <li><strong>Delete entries</strong> — Select entries and tap Delete, or use "Delete All Data" to clear everything.</li>
+        <li><strong>Delete projects/species/settings</strong> — Managed directly from the Projects and Species tabs.</li>
+        <li><strong>Full wipe</strong> — Clearing your browser's site data for TimberTally, or uninstalling the app, removes all locally stored information permanently.</li>
+    </ul>
+    <p>Because we never receive your data, we are unable to fulfill data access or deletion requests on our end — there is simply nothing for us to hold or delete.</p>
+
+    <h2>10. Data Retention</h2>
+    <p>Data persists on your device until you delete it yourself or clear browser site data. We hold no copies of your data and have no retention schedule to disclose.</p>
+
+    <h2>11. Security</h2>
+    <p>We have designed TimberTally to minimize privacy risk by keeping all data local. We do not operate servers, databases, or cloud storage that could be breached to expose your information. The security of your locally stored data is governed by your device's own security model.</p>
+
+    <h2>12. Changes to This Policy</h2>
+    <p>If this policy is updated materially, the "Last Updated" date at the top of this page will be changed and, where feasible, an in-app notice will be shown. We encourage you to review this policy periodically. Continued use of the app after a policy change constitutes acceptance of the updated policy.</p>
+
+    <h2>13. Contact</h2>
+    <p>For any questions, concerns, or requests related to this Privacy Policy:</p>
+    <p>
+        <strong>Email:</strong> <a href="mailto:timbertallyapp@gmail.com">timbertallyapp@gmail.com</a>
+    </p>
+</main>
+
+<footer>
+    TimberTally &nbsp;|&nbsp; <a href="mailto:timbertallyapp@gmail.com">timbertallyapp@gmail.com</a>
+</footer>
+
+</body>
+</html>

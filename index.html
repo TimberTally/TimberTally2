@@ -10,6 +10,26 @@
     <link rel="apple-touch-icon" href="icon.png">
     <meta name="theme-color" content="#2d5016">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script>
+        // Set --sticky-block-height so tab-nav sticks exactly under the header+settings block
+        function updateStickyHeight() {
+            const block = document.querySelector('.sticky-top-block');
+            if (block) document.documentElement.style.setProperty('--sticky-block-height', block.offsetHeight + 'px');
+        }
+        document.addEventListener('DOMContentLoaded', function() {
+            updateStickyHeight();
+            // Re-measure when settings panel toggles open/closed
+            const settingsBtn = document.getElementById('toggleSettingsBtn');
+            if (settingsBtn) {
+                settingsBtn.addEventListener('click', function() {
+                    // Settings panel animates, so re-measure after transition
+                    setTimeout(updateStickyHeight, 350);
+                    updateStickyHeight();
+                });
+            }
+        });
+        window.addEventListener('resize', updateStickyHeight);
+    </script>
 </head>
 <body>
 
@@ -21,6 +41,9 @@
             <button id="installAcceptBtn" class="install-accept-btn">Install</button>
             <button id="installDismissBtn" class="install-dismiss-btn" title="Dismiss">&#10005;</button>
         </div>
+
+        <!-- Sticky top block: header + settings panel together so tab-nav hugs directly beneath -->
+        <div class="sticky-top-block">
 
         <!-- Top Header -->
         <div class="app-header">
@@ -87,6 +110,8 @@
             </div>
         </div>
 
+        </div><!-- end sticky-top-block -->
+
         <!-- Tab Navigation -->
         <nav class="tab-nav" role="tablist">
             <button class="tab-btn active" data-tab="takeData" role="tab" aria-selected="true">&#128203; Data</button>
@@ -118,9 +143,6 @@
                                 <span id="areaLetterDisplay" class="counter-display">A</span>
                                 <button type="button" id="areaIncrementBtn" class="plot-counter-btn area-counter-btn">+</button>
                             </div>
-                        </div>
-                        <div id="plotGoalDisplay" class="plot-goal-inline">
-                            Plots needed: <span id="neededPlotsValue">---</span>
                         </div>
                     </div>
 
@@ -159,7 +181,12 @@
                     </div>
 
                     <div class="input-group" style="margin-top:8px;">
-                        <label for="notesTextarea">Notes (optional):</label>
+                        <div class="notes-label-row">
+                            <label for="notesTextarea">Notes:</label>
+                            <div id="plotGoalDisplay" class="plot-goal-inline">
+                                Plots needed: <span id="neededPlotsValue">---</span>
+                            </div>
+                        </div>
                         <textarea id="notesTextarea" rows="2" placeholder="Optional field notes..."></textarea>
                     </div>
 
@@ -222,6 +249,14 @@
                             <button id="loadCsvBtn" class="btn-info">Load CSV</button>
                         </div>
                     </div>
+                    <div class="project-group">
+                        <label>Or Drop CSV File Here:</label>
+                        <div id="csvDropZone" class="csv-drop-zone">
+                            <span class="csv-drop-icon">&#128193;</span>
+                            <span class="csv-drop-text">Drag &amp; drop a .csv file</span>
+                            <span class="csv-drop-hint">File loads automatically on drop</span>
+                        </div>
+                    </div>
                     <div id="projectMgmtFeedback" class="feedback-message" style="margin-top:10px;"></div>
                 </div>
             </div><!-- end tab-projects -->
@@ -239,7 +274,7 @@
                     </div>
                     <div class="species-remove-group">
                         <label for="removeSpeciesSelect">Select Species to Remove:</label>
-                        <select id="removeSpeciesSelect" multiple size="8"></select>
+                        <select id="removeSpeciesSelect" multiple size="30"></select>
                         <button id="removeSpeciesBtn" class="delete-button" style="width:100%;margin-top:8px;">Remove Selected</button>
                     </div>
                     <div id="speciesMgmtFeedback" class="feedback-message" style="margin-top:10px;"></div>

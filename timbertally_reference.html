@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TimberTally — Reference Guide</title>
+    <style>
+        :root {
+            --green-dark: #2d5016;
+            --green-mid:  #3d6b20;
+            --green-pale: #eaf4de;
+            --blue:       #0056b3;
+            --teal:       #17a2b8;
+            --border:     #dde8d0;
+            --text:       #222;
+            --muted:      #555;
+        }
+        * { box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            font-size: 15px;
+            line-height: 1.65;
+            color: var(--text);
+            margin: 0;
+            padding: 0;
+            background: #f8fbf4;
+        }
+
+        /* ---- Header ---- */
+        .site-header {
+            background: linear-gradient(135deg, var(--green-dark), var(--green-mid));
+            color: #fff;
+            padding: 28px 32px 20px;
+            text-align: center;
+        }
+        .site-header h1 { margin: 0 0 6px; font-size: 1.9em; letter-spacing: 0.4px; }
+        .site-header p  { margin: 0; opacity: 0.85; font-size: 0.95em; }
+
+        /* ---- Tab bar ---- */
+        .tab-bar {
+            display: flex;
+            background: var(--green-dark);
+            overflow-x: auto;
+            scrollbar-width: none;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+        }
+        .tab-bar::-webkit-scrollbar { display: none; }
+        .tab-btn {
+            flex: 1;
+            min-width: 120px;
+            padding: 13px 10px;
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            color: rgba(255,255,255,0.65);
+            font-size: 0.88em;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: color 0.2s, border-color 0.2s, background 0.2s;
+        }
+        .tab-btn:hover  { color: #fff; background: rgba(255,255,255,0.08); }
+        .tab-btn.active { color: #fff; border-bottom-color: #e8920a; background: rgba(255,255,255,0.12); }
+
+        /* ---- Page sections ---- */
+        .page { display: none; max-width: 860px; margin: 0 auto; padding: 28px 24px 48px; }
+        .page.active { display: block; }
+
+        /* ---- Typography ---- */
+        h2 {
+            color: var(--green-dark);
+            font-size: 1.2em;
+            margin: 2em 0 0.5em;
+            padding-bottom: 6px;
+            border-bottom: 2px solid var(--border);
+        }
+        h2:first-child { margin-top: 0; }
+        h3 { color: var(--teal); font-size: 1em; margin: 1.4em 0 0.3em; }
+        p  { margin: 0.4em 0 0.8em; }
+        ul, ol { margin: 0.3em 0 0.8em 1.4em; padding: 0; }
+        li { margin-bottom: 0.35em; }
+        strong { color: #111; }
+
+        code {
+            background: #e9ecef;
+            padding: 1px 5px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.92em;
+            color: #333;
+        }
+
+        /* ---- Formula blocks ---- */
+        .formula {
+            display: block;
+            background: var(--green-pale);
+            border-left: 3px solid var(--green-mid);
+            padding: 7px 12px;
+            margin: 6px 0 10px 0;
+            font-style: italic;
+            color: var(--muted);
+            font-size: 0.93em;
+            border-radius: 0 4px 4px 0;
+        }
+
+        /* ---- Info callouts ---- */
+        .note {
+            background: #fff8e1;
+            border-left: 3px solid #f0a830;
+            padding: 10px 14px;
+            margin: 12px 0;
+            border-radius: 0 4px 4px 0;
+            font-size: 0.93em;
+            color: #4a3800;
+        }
+
+        /* ---- DBH class table ---- */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0 16px;
+            font-size: 0.93em;
+        }
+        th {
+            background: var(--green-pale);
+            color: var(--green-dark);
+            font-weight: 700;
+            padding: 8px 10px;
+            text-align: left;
+            border-bottom: 2px solid var(--border);
+        }
+        td {
+            padding: 7px 10px;
+            border-bottom: 1px solid var(--border);
+        }
+        tr:nth-child(even) td { background: #f4f9ee; }
+
+        /* ---- CSV section chips ---- */
+        .section-chip {
+            display: inline-block;
+            background: var(--green-mid);
+            color: #fff;
+            font-size: 0.78em;
+            font-weight: 700;
+            padding: 2px 9px;
+            border-radius: 99px;
+            margin-right: 6px;
+            vertical-align: middle;
+        }
+
+        /* ---- Footer ---- */
+        .site-footer {
+            text-align: center;
+            padding: 18px;
+            font-size: 0.82em;
+            color: var(--muted);
+            border-top: 1px solid var(--border);
+            background: #fff;
+        }
+        .site-footer a { color: var(--blue); text-decoration: none; }
+    </style>
+</head>
+<body>
+
+<header class="site-header">
+    <h1>🌲 TimberTally — Reference Guide</h1>
+    <p>How calculations work, what the CSV contains, and the math behind the numbers.</p>
+</header>
+
+<nav class="tab-bar">
+    <button class="tab-btn active" onclick="showPage('calc', this)">📐 Calculations</button>
+    <button class="tab-btn"        onclick="showPage('csv',  this)">📄 CSV Output</button>
+    <button class="tab-btn"        onclick="showPage('proof',this)">🔬 Proof of Work</button>
+</nav>
+
+<!-- ================================================================
+     PAGE 1: CALCULATIONS
+================================================================ -->
+<section class="page active" id="calc">
+
+    <p>This page explains how TimberTally converts your field measurements into per-acre stand summaries. All calculations are performed per Area using the BAF, Log Rule, and Form Class you selected in Settings at the time of export.</p>
+
+    <h2>1. Tree Volume</h2>
+    <p>Board foot volume for a single sawtimber tree is looked up from built-in tables using the tree's DBH and number of logs.</p>
+    <ul>
+        <li><strong>Log Rule</strong> determines which table is used — Doyle, Scribner, or International ¼".</li>
+        <li><strong>Form Class (Doyle only)</strong> adjusts the FC78 base table value to account for tree taper:
+            <span class="formula">Adjusted Volume = Base Volume (FC78) × (Selected FC ÷ 78)</span>
+        </li>
+        <li><strong>Zero volume</strong> is returned for trees marked Cull, DBH under 10", zero logs, or DBH/log combinations not in the table.</li>
+    </ul>
+
+    <h2>2. DBH Size Classes</h2>
+    <table>
+        <thead><tr><th>Size Class</th><th>DBH Range</th></tr></thead>
+        <tbody>
+            <tr><td>Sapling</td><td>2.0" – 5.9"</td></tr>
+            <tr><td>Poletimber</td><td>6.0" – 11.9"</td></tr>
+            <tr><td>Small Sawtimber</td><td>12.0" – 17.9"</td></tr>
+            <tr><td>Medium Sawtimber</td><td>18.0" – 23.9"</td></tr>
+            <tr><td>Large Sawtimber</td><td>24.0"+</td></tr>
+        </tbody>
+    </table>
+
+    <h2>3. Core Per-Tree Expansion Factors</h2>
+    <p>TimberTally uses variable-radius plot cruising. Each tree you count represents a number of trees per acre determined by its size:</p>
+    <span class="formula">Basal Area (sq ft) = 0.005454 × DBH²</span>
+    <span class="formula">Trees Per Acre (TPA) = BAF ÷ Tree Basal Area</span>
+    <span class="formula">Volume Per Acre (VPA) = Tree Volume × TPA</span>
+    <p>Smaller trees have smaller basal area, so they represent more trees per acre than larger trees at the same BAF.</p>
+
+    <h2>4. Stand Averages (per Area)</h2>
+    <p>After processing every tree in the Area, per-acre averages are calculated by dividing accumulated sums by the number of plots in that Area:</p>
+    <span class="formula">Total BA/Acre = (Total trees counted × BAF) ÷ Number of plots</span>
+    <span class="formula">Total TPA/Acre = Sum of all individual TPAs ÷ Number of plots</span>
+    <span class="formula">Total Vol/Acre = Sum of all individual VPAs ÷ Number of plots</span>
+    <p>Cut and Leave values are accumulated separately; Leave = Total − Cut. The Quadratic Mean Diameter (QMD) is then:</p>
+    <span class="formula">QMD = √((BA/Acre ÷ TPA/Acre) ÷ 0.005454)</span>
+
+    <h2>5. Stand Distribution & Species Summaries</h2>
+    <p>The same totals are broken down by DBH size class and by species to produce the Stand Distribution, Species Composition (% of TPA), and Volume by Species tables shown in the CSV and Summary Report PNG.</p>
+
+    <h2>6. Plot Statistics</h2>
+    <p>Volume Per Acre is calculated independently for each plot, then basic statistics are run across those per-plot values within the Area:</p>
+    <span class="formula">Mean BF/Acre = Sum of per-plot VPAs ÷ n</span>
+    <span class="formula">Standard Deviation = √(Sum of squared deviations from mean ÷ (n − 1))</span>
+    <span class="formula">CV (%) = (Std Dev ÷ Mean) × 100</span>
+
+    <h2>7. Plots Needed Estimate</h2>
+    <p>The "Plots Needed" counter uses the current Area's CV to estimate how many total plots would be required to reach ±10% or ±20% precision (t = 2, ~95% confidence):</p>
+    <span class="formula">n = ⌈(t × CV ÷ Desired Error%)²⌉</span>
+    <p>Requires at least 2 plots with data in the current Area. A high CV means more plots are needed for the same precision.</p>
+
+</section>
+
+<!-- ================================================================
+     PAGE 2: CSV OUTPUT
+================================================================ -->
+<section class="page" id="csv">
+
+    <p>Each export generates one CSV file per Area Letter, named <code>ProjectName_AreaX_Rule_BAF_Timestamp.csv</code>. All calculations in a given file use only data from that Area and the settings active at export time. If stand notes exist, a separate <code>_StandNotes.txt</code> is also downloaded.</p>
+
+    <div class="note">If you collected data across multiple Areas (e.g., A and B), you will receive a separate CSV for each one.</div>
+
+    <h2><span class="section-chip">1</span> Raw Data</h2>
+    <p>Every tree entry for this Area, one row each. Columns: <code>PlotNumber</code>, <code>Area</code>, <code>DBH</code>, <code>Species</code>, <code>Logs</code>, <code>Cut</code>, <code>UGS</code>, <code>Notes</code>, <code>Latitude</code>, <code>Longitude</code>. These are your direct inputs — not calculated values.</p>
+
+    <h2><span class="section-chip">2</span> Tally Data</h2>
+    <p>A count of how many times each unique combination of Species, DBH, Logs, and Cut Status appeared in this Area's data. Useful for quickly scanning what was measured.</p>
+
+    <h2><span class="section-chip">3</span> Per-Plot Volume & Statistics</h2>
+    <p>Volume Per Acre is shown for each individual plot, followed by summary statistics across all plots in this Area:</p>
+    <ul>
+        <li><strong>Mean BF/Acre</strong> — average plot volume per acre.</li>
+        <li><strong>Std Dev</strong> — spread of individual plot volumes around the mean.</li>
+        <li><strong>CV (%)</strong> — relative variability; used to estimate plots needed.</li>
+    </ul>
+    <p>Requires at least 2 plots to compute statistics.</p>
+
+    <h2><span class="section-chip">4</span> Forestry Report Data</h2>
+
+    <h3>4.1 Overall Summary</h3>
+    <p>Key stand metrics for the Area: Total/Cut/Leave values for Vol/Acre, TPA, and BA/Acre; Avg DBH (QMD); and number of plots.</p>
+
+    <h3>4.2 Stand Distribution</h3>
+    <p>Rows for each DBH size class (Saplings through Large Sawtimber, plus TOTALS). Columns show % of total stems, BA/Acre (total/cut/leave), % of total BA, Vol/Acre, % of total volume, TPA cut and leave.</p>
+
+    <h3>4.3 Species Composition</h3>
+    <p>Per-species breakdown of % total stems, and what portion of that species' stems fall into Sawtimber, Poletimber, and Sapling size classes (as % of total stand TPA).</p>
+
+    <h3>4.4 Volume by Species</h3>
+    <p>Per-species board foot volume per acre broken into Small (12–17.9"), Medium (18–23.9"), and Large (24"+) sawtimber, plus total Vol/Acre and % of stand total.</p>
+
+</section>
+
+<!-- ================================================================
+     PAGE 3: PROOF OF WORK
+================================================================ -->
+<section class="page" id="proof">
+
+    <p>This page documents the exact functions and formulas used in <code>forestry-calc.js</code> for independent verification.</p>
+
+    <h2>Constants</h2>
+    <ul>
+        <li><code>BA_CONST = 0.005454</code> — converts DBH in inches to basal area in square feet.</li>
+        <li>t-value = <code>2</code> (used in plots-needed formula; approximates 95% confidence).</li>
+        <li>Volume tables are Form Class 78 base tables. Doyle adjustments scale linearly by FC ratio.</li>
+    </ul>
+
+    <h2>getTreeVolume(dbhStr, logsStr, logRule, formClass)</h2>
+    <ol>
+        <li>Parse <code>dbhStr</code> to integer. Return 0 if DBH &lt; 10 or invalid.</li>
+        <li>Return 0 if <code>logsStr</code> = "Cull", logs ≤ 0, or invalid.</li>
+        <li>Round logs down to nearest 0.5 to get the table lookup key.</li>
+        <li>Look up base volume in the selected rule's FC78 table.</li>
+        <li>If Doyle and FC ≠ 78: <code>adjusted = round(baseVol × (FC ÷ 78))</code>. Scribner and International use base volume directly.</li>
+        <li>Return volume ≥ 0.</li>
+    </ol>
+
+    <h2>getDbhClass(dbh)</h2>
+    <p>Simple range check: &lt;2 or invalid → "Other/Invalid"; 2–5.9 → Sapling; 6–11.9 → Poletimber; 12–17.9 → Small Sawtimber; 18–23.9 → Medium Sawtimber; ≥24 → Large Sawtimber.</p>
+
+    <h2>generateTallyData(dataSubset)</h2>
+    <p>Iterates entries and increments a nested counter: <code>tally[Species][DBH][Logs][CutStatus]++</code>. Returns the nested object.</p>
+
+    <h2>calculateForestryReport(dataSubset, baf, logRule, formClass)</h2>
+    <ol>
+        <li>Count unique plot numbers → <code>numPlots</code>. Return empty report if 0.</li>
+        <li>For each tree: compute BA, TPA (<code>baf ÷ BA</code>), volume, VPA (<code>vol × TPA</code>). Accumulate into total and cut sums, and into per-species and per-DBH-class buckets.</li>
+        <li>Divide all sums by <code>numPlots</code> to get per-acre averages. BA/Acre = <code>(totalTreeCount × BAF) ÷ numPlots</code>. Leave = Total − Cut.</li>
+        <li>QMD = <code>√((BA/Acre ÷ TPA/Acre) ÷ BA_CONST)</code>.</li>
+        <li>Build <code>standDistribution</code> — per DBH class: BA/Acre (T/C/L), TPA/Acre (T/C/L), Vol/Acre, % stems, % BA, % volume. Add TOTALS row.</li>
+        <li>Build <code>speciesSummary1</code> — per species: % total stems; % of stand TPA in Sap/Pole/Saw classes.</li>
+        <li>Build <code>speciesSummary2</code> — per species: Vol/Acre for S/M/L sawtimber, total Vol/Acre, % total volume.</li>
+    </ol>
+    <p>Returns: <code>{ summary, standDistribution, speciesSummary1, speciesSummary2 }</code>.</p>
+
+    <h2>calculatePlotStats(dataSubset, baf, logRule, formClass)</h2>
+    <ol>
+        <li>Group entries by plot number.</li>
+        <li>For each plot, sum VPA of all its trees → <code>plotVolumes[]</code>.</li>
+        <li>Mean = <code>sum ÷ n</code>.</li>
+        <li>Variance = <code>sum of (v − mean)² ÷ (n − 1)</code>. Requires n ≥ 2.</li>
+        <li>Std Dev = <code>√variance</code>. CV = <code>(stdDev ÷ mean) × 100</code>.</li>
+    </ol>
+    <p>Returns: <code>{ meanV, stdDevV, cvV, numValidPlots, plotVolumes }</code> or null if no valid plots.</p>
+
+    <h2>calculateStandStocking(collectedData, baf)</h2>
+    <p>For each Area: counts plots, sums TPA and BA contributions split by Cut/Leave. Divides by plot count to get TPA/Acre and BA/Acre (Total, Cut, Leave). Also computes QMD for each. Returns array of area stat objects used by the Gingrich stocking chart (TPA on X-axis, BA/Acre on Y-axis).</p>
+
+    <h2>calculateAndDisplayNeededPlots (inline in script.js)</h2>
+    <span class="formula">n = ⌈(2 × CV ÷ E)²⌉ where E = 10 (±10%) or 20 (±20%)</span>
+    <p>Filters data to current Area only. Requires numPlots ≥ 2 and CV &gt; 0.</p>
+
+    <h2>generateAndDownloadCsv (script.js)</h2>
+    <ol>
+        <li>Group all data by Area Letter.</li>
+        <li>For each Area: run <code>calculateForestryReport</code>, <code>generateTallyData</code>, <code>calculatePlotStats</code>.</li>
+        <li>Assemble raw data rows, tally rows, plot stats rows, and formatted report sections into one CSV string.</li>
+        <li>Trigger download as <code>ProjectName_AreaX_Rule_BAF_Timestamp.csv</code>.</li>
+        <li>If Export Graphs = Yes: render BA Dist, TPA Dist, Vol by Species, Sawtimber Vol, Gingrich Stocking, and Summary Report PNG; trigger each as a download. Summary Report PNG is drawn at 3× scale (4200×2700 px) via the Canvas 2D API.</li>
+        <li>If stand notes exist, download as a <code>.txt</code> file.</li>
+    </ol>
+
+</section>
+
+<footer class="site-footer">
+    TimberTally &nbsp;|&nbsp; <a href="mailto:timbertallyapp@gmail.com">timbertallyapp@gmail.com</a>
+</footer>
+
+<script>
+    function showPage(id, btn) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        btn.classList.add('active');
+    }
+</script>
+
+</body>
+</html>

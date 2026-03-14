@@ -610,16 +610,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Stats table
         if (stockingStatsTable) {
-            let html = '<table><thead><tr><th>Area</th><th>Plots</th><th>Total TPA</th><th>Total BA/Ac</th><th>QMD</th><th>Cut TPA</th><th>Leave TPA</th></tr></thead><tbody>';
+            let html = '<table><thead><tr><th>Area</th><th>Plots</th><th>Total TPA</th><th>Total BA/Ac</th><th>Cut TPA</th><th>Cut BA/Ac</th><th>Leave TPA</th><th>Leave BA/Ac</th></tr></thead><tbody>';
             areaStats.forEach(s => {
                 html += `<tr>
                     <td><strong>${s.area}</strong></td>
                     <td>${s.numPlots}</td>
                     <td>${s.totalTpa.toFixed(1)}</td>
                     <td>${s.totalBa.toFixed(1)}</td>
-                    <td>${s.totalQmd.toFixed(1)}"</td>
                     <td>${s.cutTpa.toFixed(1)}</td>
+                    <td>${s.cutBa.toFixed(1)}</td>
                     <td>${s.leaveTpa.toFixed(1)}</td>
+                    <td>${s.leaveBa.toFixed(1)}</td>
                 </tr>`;
             });
             html += '</tbody></table>';
@@ -791,7 +792,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (graphsEnabled && reportData?.summary?.numberOfPlots > 0) {
                     const nameBase = `${projBase}_Area${areaLetter}_${ts}`;
-                    const makeAndDownload = async (type, genFn, suffix) => {
+
+                    // Helper: render a Chart.js chart to PNG and download
+                    const makeAndDownload = async (genFn, suffix) => {
                         const c = document.createElement('canvas'); c.width=800; c.height=450;
                         const inst = genFn(reportData, c);
                         if (!inst) return;
@@ -803,13 +806,51 @@ document.addEventListener('DOMContentLoaded', () => {
                         } catch(e) {}
                         try { inst.destroy(); } catch(e) {}
                     };
-                    await makeAndDownload('BA', generateBaChartExport, 'BA_Dist');
+
+                    // Helper: download a plain canvas (no Chart.js instance)
+                    const downloadCanvas = async (canvas, suffix) => {
+                        if (!canvas) return;
+                        await new Promise(r => setTimeout(r, 100));
+                        try {
+                            const url = canvas.toDataURL('image/png');
+                            const a = document.createElement('a'); a.href=url; a.download=`${nameBase}_${suffix}.png`;
+                            a.style.visibility='hidden'; document.body.appendChild(a); a.click(); document.body.removeChild(a);
+                        } catch(e) { console.error('Canvas download error:', e); }
+                    };
+
+                    await makeAndDownload(generateBaChartExport, 'BA_Dist');
                     await new Promise(r => setTimeout(r, 250));
-                    await makeAndDownload('TPA', generateTpaChartExport, 'TPA_Dist');
+                    await makeAndDownload(generateTpaChartExport, 'TPA_Dist');
                     await new Promise(r => setTimeout(r, 250));
-                    await makeAndDownload('VolSpec', generateVolSpeciesChartExport, 'Vol_Species');
+                    await makeAndDownload(generateVolSpeciesChartExport, 'Vol_Species');
                     await new Promise(r => setTimeout(r, 250));
-                    await makeAndDownload('VolSaw', generateVolSawtimberChartExport, 'Vol_Sawtimber');
+                    await makeAndDownload(generateVolSawtimberChartExport, 'Vol_Sawtimber');
+                    await new Promise(r => setTimeout(r, 250));
+
+                    // Gingrich stocking chart — uses all areas' data
+                    try {
+                        const allAreaStats = calculateStandStocking(collectedData, selBaf);
+                        if (allAreaStats?.length) {
+                            const gCanvas = document.createElement('canvas');
+                            gCanvas.width = 1200; gCanvas.height = 700;
+                            const gInst = buildStockingChartExport(allAreaStats, gCanvas);
+                            if (gInst) {
+                                await new Promise(r => setTimeout(r, 300));
+                                await downloadCanvas(gCanvas, 'Gingrich_Stocking');
+                                try { gInst.destroy(); } catch(e) {}
+                            }
+                        }
+                    } catch(e) { console.error('Gingrich export error:', e); }
+                    await new Promise(r => setTimeout(r, 250));
+
+                    // Summary report one-pager PNG
+                    try {
+                        const projName = projectNameInput?.value.trim() || 'Untitled';
+                        const summaryCanvas = buildSummaryReportCanvas(
+                            reportData, plotStats, areaLetter, projName, selRule, selFc, selBaf
+                        );
+                        await downloadCanvas(summaryCanvas, 'Summary_Report');
+                    } catch(e) { console.error('Summary report export error:', e); }
                     await new Promise(r => setTimeout(r, 250));
                 }
 
@@ -1163,19 +1204,24 @@ document.addEventListener('DOMContentLoaded', () => {
         showProjectFeedback(`Project "${name}" deleted.`);
     });
 
-    if (loadCsvBtn) loadCsvBtn.addEventListener('click', () => {
-        const file = csvFileInput?.files[0];
-        if (!file) { showProjectFeedback("Select a CSV file.", true); return; }
-        if (!file.name.toLowerCase().endsWith('.csv')) { showProjectFeedback("Must be a .csv file.", true); csvFileInput.value=null; return; }
+    // ============================================================
+    // CSV FILE LOADER — shared by button and drag-and-drop
+    // ============================================================
+    function loadCsvFile(file) {
+        if (!file.name.toLowerCase().endsWith('.csv')) {
+            showProjectFeedback("Must be a .csv file.", true);
+            if (csvFileInput) csvFileInput.value = null;
+            return;
+        }
         const reader = new FileReader();
         reader.onload = e => {
             try {
                 const parsed = parseCsvAndLoadData(e.target.result);
-                if (!parsed.length) { showProjectFeedback("No valid data found in CSV.", true); csvFileInput.value=null; return; }
+                if (!parsed.length) { showProjectFeedback("No valid data found in CSV.", true); if (csvFileInput) csvFileInput.value=null; return; }
                 let chosenArea = null;
                 do {
                     chosenArea = prompt(`Enter Area Letter (A-Z) for all ${parsed.length} entries from "${file.name}":`, areaLetters[currentAreaIndex]);
-                    if (chosenArea === null) { showProjectFeedback("CSV load cancelled.", false); csvFileInput.value=null; return; }
+                    if (chosenArea === null) { showProjectFeedback("CSV load cancelled.", false); if (csvFileInput) csvFileInput.value=null; return; }
                     chosenArea = chosenArea.trim().toUpperCase();
                 } while (!(chosenArea.length===1 && areaLetters.includes(chosenArea)) && (alert("Enter a single letter A-Z.") || true));
 
@@ -1198,15 +1244,46 @@ document.addEventListener('DOMContentLoaded', () => {
                 showProjectFeedback(`Added ${parsed.length} entries to Area ${chosenArea}.${maxPlot>0?' Plots renumbered.':''}`, false, 4000);
                 currentLocation = null;
                 if (locationStatus) locationStatus.textContent = 'Location not set';
-                csvFileInput.value = null;
+                if (csvFileInput) csvFileInput.value = null;
             } catch(err) {
                 showProjectFeedback(`CSV Error: ${err.message}`, true, 5000);
-                csvFileInput.value = null;
+                if (csvFileInput) csvFileInput.value = null;
             }
         };
-        reader.onerror = () => { showProjectFeedback("File read error.", true); csvFileInput.value=null; };
+        reader.onerror = () => { showProjectFeedback("File read error.", true); if (csvFileInput) csvFileInput.value=null; };
         reader.readAsText(file);
+    }
+
+    if (loadCsvBtn) loadCsvBtn.addEventListener('click', () => {
+        const file = csvFileInput?.files[0];
+        if (!file) { showProjectFeedback("Select a CSV file.", true); return; }
+        loadCsvFile(file);
     });
+
+    // ---- Drag-and-drop CSV zone ----
+    const csvDropZone = document.getElementById('csvDropZone');
+    if (csvDropZone) {
+        csvDropZone.addEventListener('dragover', e => {
+            e.preventDefault();
+            csvDropZone.classList.add('drag-over');
+        });
+        csvDropZone.addEventListener('dragleave', e => {
+            if (!csvDropZone.contains(e.relatedTarget)) csvDropZone.classList.remove('drag-over');
+        });
+        csvDropZone.addEventListener('drop', e => {
+            e.preventDefault();
+            csvDropZone.classList.remove('drag-over');
+            const file = e.dataTransfer?.files[0];
+            if (!file) return;
+            if (!file.name.toLowerCase().endsWith('.csv')) {
+                showProjectFeedback("Must be a .csv file.", true);
+                return;
+            }
+            loadCsvFile(file);
+        });
+        // Also allow tapping the drop zone on mobile to trigger file picker
+        csvDropZone.addEventListener('click', () => csvFileInput?.click());
+    }
 
     // Tally area selector
     if (tallyAreaSelect) tallyAreaSelect.addEventListener('change', renderTallyTab);
